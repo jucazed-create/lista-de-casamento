@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Casamento</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: linear-gradient(180deg, #fff0f5, #ffffff);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      padding: 32px 16px;
+      text-align: center;
+    }
+    header img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #8b3a62;
+    }
+    header p {
+      margin-top: 8px;
+      color: #555;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 0 16px 40px;
+    }
+    .item {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+    .item span {
+      font-size: 16px;
+    }
+    .item button {
+      background: #d63384;
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .item button:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 22px;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+    .confirm {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 20px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="foto-do-casal.jpg" alt="Casal" />
+    <h1>Ana & João</h1>
+    <p>Com amor, criamos nosso lar 💕</p>
+  </header>
+
+  <div class="container" id="lista"></div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2 id="modalItem"></h2>
+      <p><strong>PIX:</strong> chavepix@email.com</p>
+      <textarea id="mensagem" placeholder="Deixe uma mensagem (opcional)"></textarea>
+      <button class="confirm" onclick="confirmarPresente()">Confirmar no WhatsApp</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      databaseURL: "https://SEU_PROJETO.firebaseio.com",
+      projectId: "SEU_PROJETO",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const itens = ['Geladeira', 'Fogão', 'Cama casal', 'Jogo de panelas'];
+    let itemSelecionado = '';
+
+    function carregarLista() {
+      const lista = document.getElementById('lista');
+      lista.innerHTML = '';
+
+      db.ref('presentes').once('value', snap => {
+        const dados = snap.val() || {};
+
+        itens.forEach(item => {
+          const doado = dados[item]?.status === 'doado';
+
+          const div = document.createElement('div');
+          div.className = 'item';
+
+          const span = document.createElement('span');
+          span.textContent = item + (doado ? ' (Já doado)' : '');
+
+          const btn = document.createElement('button');
+          btn.textContent = 'Presentear';
+          btn.disabled = doado;
+          btn.onclick = () => abrirModal(item);
+
+          div.appendChild(span);
+          div.appendChild(btn);
+          lista.appendChild(div);
+        });
+      });
+    }
+
+    function abrirModal(item) {
+      itemSelecionado = item;
+      document.getElementById('modalItem').innerText = item;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function confirmarPresente() {
+      const mensagem = document.getElementById('mensagem').value;
+
+      db.ref('presentes/' + itemSelecionado).set({
+        status: 'doado',
+        mensagem: mensagem,
+        data: new Date().toISOString()
+      });
+
+      const texto = `Olá! Presenteei com: ${itemSelecionado}. Mensagem: ${mensagem}`;
+      const telefone = '5599999999999';
+
+      window.open(`https://wa.me/${telefone}?text=${encodeURIComponent(texto)}`, '_blank');
+      document.getElementById('modal').style.display = 'none';
+      carregarLista();
+    }
+
+    carregarLista();
+  </script>
+</body>
+</html>
