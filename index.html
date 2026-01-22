@@ -121,11 +121,23 @@
   </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_PROJETO.firebaseapp.com",
-      databaseURL: "https://SEU_PROJETO.firebaseio.com",
-      projectId: "SEU_PROJETO",
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBzyjjoQQYaX8mgUMoY9U0-VJkUQVNOnSY",
+  authDomain: "lista-de-casamento-d8038.firebaseapp.com",
+  projectId: "lista-de-casamento-d8038",
+  storageBucket: "lista-de-casamento-d8038.firebasestorage.app",
+  messagingSenderId: "920459755657",
+  appId: "1:920459755657:web:4150c62977d0e2eabe8658"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
     };
 
     firebase.initializeApp(firebaseConfig);
