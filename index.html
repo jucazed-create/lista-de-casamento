@@ -26,28 +26,44 @@
     }
 
     h1 {
-      margin-top: 20px;
       color: #8b3a62;
-      font-size: 32px;
+      margin-top: 20px;
     }
 
     p {
       color: #555;
-      font-size: 16px;
     }
 
     .container {
-      max-width: 600px;
-      margin: 0 auto;
+      max-width: 700px;
+      margin: auto;
       padding: 20px;
     }
 
     .item {
       background: white;
-      border-radius: 12px;
+      border-radius: 15px;
       padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    .item img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .item h3 {
+      margin: 10px 0 5px;
+      color: #8b3a62;
+    }
+
+    .item span {
+      font-weight: bold;
+      color: #444;
     }
 
     .item button {
@@ -55,12 +71,13 @@
       background: #c94b6b;
       color: white;
       border: none;
-      padding: 10px 14px;
+      padding: 10px 16px;
       border-radius: 20px;
       cursor: pointer;
+      width: 100%;
     }
 
-    /* Botão admin */
+    /* BOTÃO ADMIN */
     #btnAdmin {
       display: none;
       position: fixed;
@@ -76,76 +93,155 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       z-index: 9999;
     }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: left;
+    }
+
+    .modal-content h2 {
+      text-align: center;
+      color: #8b3a62;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .modal-content button {
+      width: 100%;
+      margin-top: 10px;
+      background: #c94b6b;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <img src="casal.jpg" alt="Ismael e Isadora">
-    <h1>Ismael e Isadora</h1>
-    <p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
-  </header>
+<header>
+  <img src="casal.jpg" alt="Ismael e Isadora">
+  <h1>Ismael e Isadora</h1>
+  <p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
+</header>
 
-  <div class="container" id="lista">
-    <!-- Itens aparecem aqui -->
+<div class="container" id="lista"></div>
+
+<button id="btnAdmin" onclick="abrirModal()">➕ Adicionar item</button>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2>Novo presente</h2>
+
+    <input type="text" id="nomeItem" placeholder="Nome do item">
+    <input type="number" id="valorItem" placeholder="Valor (R$)">
+    <input type="file" id="fotoItem" accept="image/*">
+
+    <button onclick="salvarItem()">Salvar item</button>
+    <button onclick="fecharModal()" style="background:#aaa;">Cancelar</button>
   </div>
+</div>
 
-  <!-- Botão visível só para admin -->
-  <button id="btnAdmin" onclick="adicionarItem()">➕ Adicionar item</button>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const isAdmin = params.get('admin') === '1';
 
-  <script>
-    // Verifica se é admin pelo link
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === '1') {
-      document.getElementById('btnAdmin').style.display = 'block';
+  if (isAdmin) {
+    document.getElementById('btnAdmin').style.display = 'block';
+  }
+
+  let itens = JSON.parse(localStorage.getItem('itensCasamento')) || [];
+
+  function renderizarLista() {
+    const lista = document.getElementById('lista');
+    lista.innerHTML = '';
+
+    itens.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <img src="${item.foto}">
+        <h3>${item.nome}</h3>
+        <span>R$ ${item.valor}</span>
+        <button onclick="presentear('${item.nome}')">Presentear</button>
+      `;
+      lista.appendChild(div);
+    });
+  }
+
+  function abrirModal() {
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function fecharModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+
+  function salvarItem() {
+    const nome = document.getElementById('nomeItem').value;
+    const valor = document.getElementById('valorItem').value;
+    const foto = document.getElementById('fotoItem').files[0];
+
+    if (!nome || !valor || !foto) {
+      alert('Preencha todos os campos');
+      return;
     }
 
-    // Lista salva no navegador
-    let itens = JSON.parse(localStorage.getItem('itensCasamento')) || [];
-
-    function renderizarLista() {
-      const lista = document.getElementById('lista');
-      lista.innerHTML = '';
-
-      itens.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerHTML = `
-          <strong>${item}</strong><br>
-          <button onclick="confirmarPresente(${index})">Presentear</button>
-        `;
-        lista.appendChild(div);
+    const reader = new FileReader();
+    reader.onload = function () {
+      itens.push({
+        nome,
+        valor,
+        foto: reader.result
       });
-    }
 
-    function adicionarItem() {
-      const nome = prompt('Nome do item:');
-      if (!nome) return;
-
-      itens.push(nome);
       localStorage.setItem('itensCasamento', JSON.stringify(itens));
+      fecharModal();
       renderizarLista();
-    }
+    };
+    reader.readAsDataURL(foto);
+  }
 
-    function confirmarPresente(index) {
-      const item = itens[index];
-      const msg = encodeURIComponent(
-        'Olá! Gostaria de confirmar o presente: ' + item
-      );
+  function presentear(item) {
+    const msg = encodeURIComponent(
+      'Olá! Gostaria de presentear o item: ' + item + ' 💕'
+    );
 
-      window.open(
-        'https://wa.me/55SEUNUMEROAQUI?text=' + msg,
-        '_blank'
-      );
+    window.open(
+      'https://wa.me/55SEUNUMEROAQUI?text=' + msg,
+      '_blank'
+    );
+  }
 
-      itens.splice(index, 1);
-      localStorage.setItem('itensCasamento', JSON.stringify(itens));
-      renderizarLista();
-    }
-
-    renderizarLista();
-  </script>
+  renderizarLista();
+</script>
 
 </body>
 </html>
