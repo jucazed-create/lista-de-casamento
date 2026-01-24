@@ -59,6 +59,23 @@ function carregarLista() {
 
 </script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<button id="btnAdmin" onclick="abrirFormulario()" style="
+  display:none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #c94b6b;
+  color: white;
+  border: none;
+  padding: 14px 18px;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+">
+➕ Adicionar item
+</button>
 
   <style>
     body {
@@ -242,6 +259,18 @@ carregarLista();
     }
 
     carregarLista();
+    let isAdmin = false;
+
+function verificarAdmin() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('admin') === '1') {
+    isAdmin = true;
+    document.getElementById('btnAdmin').style.display = 'block';
+  }
+}
+
+window.onload = verificarAdmin;
+
   </script>
 </body>
 </html>
