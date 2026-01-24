@@ -58,7 +58,9 @@ function carregarLista() {
 }
 
 </script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    body <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <button id="btnAdmin" onclick="abrirFormulario()" style="
   display:none;
   position: fixed;
@@ -76,9 +78,7 @@ function carregarLista() {
 ">
 ➕ Adicionar item
 </button>
-
-  <style>
-    body {
+    {
       font-family: 'Georgia', serif;
       background: linear-gradient(180deg, #fff0f5, #ffffff);
       margin: 0;
@@ -171,24 +171,6 @@ function carregarLista() {
   </style>
 </head>
 <body>
-  <button id="btnAdmin" onclick="abrirFormulario()" style="
-display:none;
-position: fixed;
-bottom: 20px;
-right: 20px;
-background: #c94b6b;
-color: white;
-border: none;
-padding: 14px 18px;
-border-radius: 30px;
-font-size: 16px;
-cursor: pointer;
-box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-z-index: 9999;
-">
-+ Adicionar item
-</button>
-
   <header>
     <img src="casal.jpg" alt="Isadora e Ismael">
     <h1>Ismael e Isadora</h1>
@@ -205,7 +187,7 @@ z-index: 9999;
       <h2 id="modalItem"></h2>
       <p><strong>PIX:</strong> chavepix@email.com</p>
       <textarea id="mensagem" placeholder="Deixe uma mensagem (opcional)"></textarea>
-      <button class="confirm" onclick="confirmarPresente()">Confirmar no WhatsApp</button>
+      <button lass="confirm" onclick="confirmarPresente()">Confirmar no WhatsApp</button>
     </div>
   </div>
 
