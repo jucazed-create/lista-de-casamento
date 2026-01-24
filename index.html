@@ -1,276 +1,151 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Lista de Casamento</title>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
-    function verificarAdmin() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('admin') === '1') {
-    isAdmin = true;
-    document.getElementById('btnAdmin').style.display = 'block';
-  }
-}
-
-
-function abrirAdmin() {
-  const nomeItem = prompt('Nome do item a adicionar:');
-  if (!nomeItem) return;
-
-  db.ref('itens').push({ nome: nomeItem });
-}
-
-// sobrescreve lista para vir do banco
-function carregarLista() {
-  const lista = document.getElementById('lista');
-  lista.innerHTML = '';
-
-  db.ref('itens').on('value', snap => {
-    lista.innerHTML = '';
-    const dados = snap.val() || {};
-
-    Object.keys(dados).forEach(id => {
-      const item = dados[id].nome;
-
-      db.ref('presentes/' + item).once('value', s => {
-        const doado = s.val()?.status === 'doado';
-
-        const div = document.createElement('div');
-        div.className = 'item';
-
-        const span = document.createElement('span');
-        span.textContent = item + (doado ? ' (Já doado)' : '');
-
-        const btn = document.createElement('button');
-        btn.textContent = 'Presentear';
-        btn.disabled = doado;
-        btn.onclick = () => abrirModal(item);
-
-        div.appendChild(span);
-        div.appendChild(btn);
-        lista.appendChild(div);
-      });
-    });
-  });
-}
-
-</script>
-
   <style>
-    body <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<button id="btnAdmin" onclick="abrirFormulario()" style="
-  display:none;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #c94b6b;
-  color: white;
-  border: none;
-  padding: 14px 18px;
-  border-radius: 30px;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 9999;
-">
-➕ Adicionar item
-</button>
-    {
-      font-family: 'Georgia', serif;
+    body {
+      font-family: Georgia, serif;
       background: linear-gradient(180deg, #fff0f5, #ffffff);
       margin: 0;
       padding: 0;
-    }
-    header {
-      padding: 32px 16px;
       text-align: center;
     }
+
+    header {
+      padding: 40px 20px;
+    }
+
     header img {
-      width: 140px;
-      height: 140px;
+      width: 160px;
+      height: 160px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border: 4px solid #e8b4c6;
     }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
+
+    h1 {
+      margin-top: 20px;
       color: #8b3a62;
+      font-size: 32px;
     }
-    header p {
-      margin-top: 8px;
+
+    p {
       color: #555;
-    }
-    .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 0 16px 40px;
-    }
-    .item {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    }
-    .item span {
       font-size: 16px;
     }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .item {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
     .item button {
-      background: #d63384;
+      margin-top: 10px;
+      background: #c94b6b;
+      color: white;
       border: none;
-      color: #fff;
-      padding: 8px 16px;
+      padding: 10px 14px;
       border-radius: 20px;
       cursor: pointer;
-      font-size: 14px;
     }
-    .item button:disabled {
-      background: #bbb;
-      cursor: not-allowed;
-    }
-    .modal {
+
+    /* Botão admin */
+    #btnAdmin {
       display: none;
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 22px;
-      border-radius: 16px;
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-    }
-    textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 10px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-    }
-    .confirm {
-      background: #25d366;
-      color: #fff;
+      bottom: 20px;
+      right: 20px;
+      background: #c94b6b;
+      color: white;
       border: none;
-      padding: 10px;
-      width: 100%;
-      border-radius: 20px;
-      font-size: 15px;
+      padding: 14px 18px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 9999;
     }
   </style>
 </head>
+
 <body>
+
   <header>
-    <img src="casal.jpg" alt="Isadora e Ismael">
+    <img src="casal.jpg" alt="Ismael e Isadora">
     <h1>Ismael e Isadora</h1>
     <p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
   </header>
 
-  <div class="container">
-  <button id="btnAdmin" onclick="abrirAdmin()" style="display:none;margin-bottom:16px;background:#8b3a62;color:#fff;border:none;padding:10px 16px;border-radius:20px;">➕ Adicionar item</button>
-  <div id="lista"></div>
-</div>
-
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2 id="modalItem"></h2>
-      <p><strong>PIX:</strong> chavepix@email.com</p>
-      <textarea id="mensagem" placeholder="Deixe uma mensagem (opcional)"></textarea>
-      <button lass="confirm" onclick="confirmarPresente()">Confirmar no WhatsApp</button>
-    </div>
+  <div class="container" id="lista">
+    <!-- Itens aparecem aqui -->
   </div>
 
+  <!-- Botão visível só para admin -->
+  <button id="btnAdmin" onclick="adicionarItem()">➕ Adicionar item</button>
+
   <script>
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_PROJETO.firebaseapp.com",
-      databaseURL: "https://SEU_PROJETO.firebaseio.com",
-      projectId: "SEU_PROJETO",
-    };
+    // Verifica se é admin pelo link
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === '1') {
+      document.getElementById('btnAdmin').style.display = 'block';
+    }
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // Lista salva no navegador
+    let itens = JSON.parse(localStorage.getItem('itensCasamento')) || [];
 
-    const itens = ['Geladeira', 'Fogão', 'Cama casal', 'Jogo de panelas'];
-    let itemSelecionado = '';
-let isAdmin = false;;
-
-    function carregarLista()() {
+    function renderizarLista() {
       const lista = document.getElementById('lista');
       lista.innerHTML = '';
 
-      db.ref('presentes').once('value', snap => {
-        const dados = snap.val() || {};
-
-        itens.forEach(item => {
-          const doado = dados[item]?.status === 'doado';
-
-          const div = document.createElement('div');
-          div.className = 'item';
-
-          const span = document.createElement('span');
-          span.textContent = item + (doado ? ' (Já doado)' : '');
-
-          const btn = document.createElement('button');
-          btn.textContent = 'Presentear';
-          btn.disabled = doado;
-          btn.onclick = () => abrirModal(item);
-
-          div.appendChild(span);
-          div.appendChild(btn);
-          lista.appendChild(div);
-        });
+      itens.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <strong>${item}</strong><br>
+          <button onclick="confirmarPresente(${index})">Presentear</button>
+        `;
+        lista.appendChild(div);
       });
     }
 
-    function abrirModal(item) {
-      itemSelecionado = item;
-      document.getElementById('modalItem').innerText = item;
-      document.getElementById('modal').style.display = 'flex';
+    function adicionarItem() {
+      const nome = prompt('Nome do item:');
+      if (!nome) return;
+
+      itens.push(nome);
+      localStorage.setItem('itensCasamento', JSON.stringify(itens));
+      renderizarLista();
     }
 
-    function confirmarPresente() {
-      const mensagem = document.getElementById('mensagem').value;
+    function confirmarPresente(index) {
+      const item = itens[index];
+      const msg = encodeURIComponent(
+        'Olá! Gostaria de confirmar o presente: ' + item
+      );
 
-      db.ref('presentes/' + itemSelecionado).set({
-        status: 'doado',
-        mensagem: mensagem,
-        data: new Date().toISOString()
-      });
+      window.open(
+        'https://wa.me/55SEUNUMEROAQUI?text=' + msg,
+        '_blank'
+      );
 
-      const texto = `Olá! Presenteei com: ${itemSelecionado}. Mensagem: ${mensagem}`;
-      const telefone = '5599999999999';
-
-      window.open(`https://wa.me/${telefone}?text=${encodeURIComponent(texto)}`, '_blank');
-      document.getElementById('modal').style.display = 'none';
-      verificarAdmin();
-carregarLista();
+      itens.splice(index, 1);
+      localStorage.setItem('itensCasamento', JSON.stringify(itens));
+      renderizarLista();
     }
 
-    carregarLista();
-    let isAdmin = false;
-
-function verificarAdmin() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('admin') === '1') {
-    isAdmin = true;
-    document.getElementById('btnAdmin').style.display = 'block';
-  }
-}
-
-window.onload = verificarAdmin;
-
+    renderizarLista();
   </script>
+
 </body>
 </html>
