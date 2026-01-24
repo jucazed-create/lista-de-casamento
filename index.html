@@ -6,7 +6,57 @@
   <title>Lista de Casamento</title>
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">function verificarAdmin() {
+  const senha = prompt('Área do casal 💍
+Digite a senha para administrar os itens:');
+  if (senha === '1234') {
+    isAdmin = true;
+    document.getElementById('btnAdmin').style.display = 'block';
+  }
+}
+
+function abrirAdmin() {
+  const nomeItem = prompt('Nome do item a adicionar:');
+  if (!nomeItem) return;
+
+  db.ref('itens').push({ nome: nomeItem });
+}
+
+// sobrescreve lista para vir do banco
+function carregarLista() {
+  const lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  db.ref('itens').on('value', snap => {
+    lista.innerHTML = '';
+    const dados = snap.val() || {};
+
+    Object.keys(dados).forEach(id => {
+      const item = dados[id].nome;
+
+      db.ref('presentes/' + item).once('value', s => {
+        const doado = s.val()?.status === 'doado';
+
+        const div = document.createElement('div');
+        div.className = 'item';
+
+        const span = document.createElement('span');
+        span.textContent = item + (doado ? ' (Já doado)' : '');
+
+        const btn = document.createElement('button');
+        btn.textContent = 'Presentear';
+        btn.disabled = doado;
+        btn.onclick = () => abrirModal(item);
+
+        div.appendChild(span);
+        div.appendChild(btn);
+        lista.appendChild(div);
+      });
+    });
+  });
+}
+
+</script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
@@ -104,12 +154,15 @@
 </head>
 <body>
   <header>
-    <img src="casal.jpg" alt="Isadora e Ismael">
-    <h1>Ismael & Isadora</h1>
-    <p> Deus nos uniu, e Com amor, começamos nossa nova história. 💕</p>
+    <img src="foto-do-casal.jpg" alt="Casal" />
+    <h1>Ana & João</h1>
+    <p>Com amor, criamos nosso lar 💕</p>
   </header>
 
-  <div class="container" id="lista"></div>
+  <div class="container">
+  <button id="btnAdmin" onclick="abrirAdmin()" style="display:none;margin-bottom:16px;background:#8b3a62;color:#fff;border:none;padding:10px 16px;border-radius:20px;">➕ Adicionar item</button>
+  <div id="lista"></div>
+</div>
 
   <div class="modal" id="modal">
     <div class="modal-content">
@@ -121,23 +174,11 @@
   </div>
 
   <script>
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBzyjjoQQYaX8mgUMoY9U0-VJkUQVNOnSY",
-  authDomain: "lista-de-casamento-d8038.firebaseapp.com",
-  projectId: "lista-de-casamento-d8038",
-  storageBucket: "lista-de-casamento-d8038.firebasestorage.app",
-  messagingSenderId: "920459755657",
-  appId: "1:920459755657:web:4150c62977d0e2eabe8658"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      databaseURL: "https://SEU_PROJETO.firebaseio.com",
+      projectId: "SEU_PROJETO",
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -145,8 +186,9 @@ const app = initializeApp(firebaseConfig);
 
     const itens = ['Geladeira', 'Fogão', 'Cama casal', 'Jogo de panelas'];
     let itemSelecionado = '';
+let isAdmin = false;;
 
-    function carregarLista() {
+    function carregarLista()() {
       const lista = document.getElementById('lista');
       lista.innerHTML = '';
 
@@ -194,7 +236,8 @@ const app = initializeApp(firebaseConfig);
 
       window.open(`https://wa.me/${telefone}?text=${encodeURIComponent(texto)}`, '_blank');
       document.getElementById('modal').style.display = 'none';
-      carregarLista();
+      verificarAdmin();
+carregarLista();
     }
 
     carregarLista();
