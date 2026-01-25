@@ -1,168 +1,213 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Lista de Casamento</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Lista de Casamento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fdfdfd;
-      text-align: center;
-      padding: 15px;
-    }
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #fafafa;
+    text-align: center;
+    padding: 20px;
+  }
 
-    h1 {
-      margin-top: 10px;
-    }
+  img.casal {
+    width: 180px;
+    border-radius: 50%;
+    margin: 10px auto;
+    display: block;
+    border: 4px solid #f3c6d9;
+  }
 
-    .frase {
-      color: #777;
-      margin-bottom: 20px;
-    }
+  h1 {
+    margin: 10px 0 5px;
+  }
 
-    button {
-      cursor: pointer;
-    }
+  .frase {
+    color: #777;
+    margin-bottom: 20px;
+  }
 
-    #lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
+  #lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 15px;
+    max-width: 900px;
+    margin: auto;
+  }
 
-    .item {
-      border: 2px solid #f3c6d9;
-      border-radius: 12px;
-      padding: 10px;
-      background: #fff;
-    }
+  .item {
+    background: #fff;
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  }
 
-    .item img {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid #eee;
-    }
+  .item img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #eee;
+  }
 
-    .valor {
-      color: #444;
-      font-weight: bold;
-    }
+  .valor {
+    font-weight: bold;
+    color: #444;
+  }
 
-    #painelAdmin {
-      display: none;
-      background: #fff;
-      border: 2px dashed #ccc;
-      padding: 15px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: 20px auto;
-    }
+  button {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 8px;
-    }
-  </style>
+  .btn-presentear {
+    background: #f3c6d9;
+    margin-top: 6px;
+  }
+
+  .btn-admin {
+    background: #333;
+    color: #fff;
+    margin: 10px;
+  }
+
+  #painelAdmin {
+    display: none;
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  /* MODAL */
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    align-items: center;
+    justify-content: center;
+  }
+
+  #modalContent {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    max-width: 300px;
+    width: 90%;
+  }
+</style>
 </head>
 
 <body>
 
-  <!-- FOTO DO CASAL -->
-  <img src="casal.jpg" style="width:200px;border-radius:50%;margin-top:20px;">
+<img src="casal.jpg" class="casal">
 
-  <h1>Ismael e Isadora</h1>
-  <p class="frase">Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
+<h1>Ismael e Isadora</h1>
+<p class="frase">Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
 
-  <!-- BOTÃO ADMIN -->
-  <button onclick="ativarAdmin()">Sou admin</button>
-  <button id="btnAdicionar" style="display:none;">+ Adicionar item</button>
+<button id="btnAdmin" class="btn-admin" style="display:none;">+ Adicionar item</button>
 
-  <!-- PAINEL ADMIN -->
-  <div id="painelAdmin">
-    <h3>Adicionar item</h3>
+<div id="painelAdmin">
+  <h3>Adicionar item</h3>
+  <input id="nomeItem" placeholder="Nome do item">
+  <input id="valorItem" type="number" placeholder="Valor (R$)">
+  <input id="fotoItem" type="file" accept="image/*">
+  <button class="btn-presentear" onclick="salvarItem()">Salvar</button>
+</div>
 
-    <input id="nomeItem" placeholder="Nome do item">
-    <input id="valorItem" type="number" placeholder="Valor (R$)">
-    <input id="fotoItem" type="file" accept="image/*">
+<div id="lista"></div>
 
-    <button onclick="salvarItem()" style="background:#f3c6d9;border:none;padding:10px;border-radius:8px;">
-      Salvar item
-    </button>
+<!-- MODAL PRESENTEAR -->
+<div id="modal">
+  <div id="modalContent">
+    <h3 id="modalNome"></h3>
+    <p id="modalValor"></p>
+
+    <p>PIX:</p>
+    <strong>SEU_PIX_AQUI</strong>
+
+    <textarea placeholder="Mensagem (opcional)"></textarea>
+
+    <button class="btn-presentear" onclick="fecharModal()">Fechar</button>
   </div>
+</div>
 
-  <!-- LISTA -->
-  <div id="lista"></div>
+<script>
+  const isAdmin = location.search.includes("admin=1");
+  const btnAdmin = document.getElementById("btnAdmin");
+  const painel = document.getElementById("painelAdmin");
+  const lista = document.getElementById("lista");
+  const modal = document.getElementById("modal");
 
-  <!-- SCRIPT -->
-  <script type="module">
-    const ADMIN_CODE = "ismaelisadora2026";
-    let isAdmin = localStorage.getItem("admin") === "true";
-    let itens = JSON.parse(localStorage.getItem("itens")) || [];
+  let itens = JSON.parse(localStorage.getItem("itens")) || [];
 
-    const lista = document.getElementById("lista");
-    const painel = document.getElementById("painelAdmin");
-    const btnAdd = document.getElementById("btnAdicionar");
-
-    window.ativarAdmin = function () {
-      const codigo = prompt("Digite o código de admin:");
-      if (codigo === ADMIN_CODE) {
-        isAdmin = true;
-        localStorage.setItem("admin", "true");
-        btnAdd.style.display = "inline-block";
-        alert("Modo admin ativado");
-      } else {
-        alert("Código incorreto");
-      }
-    };
-
-    btnAdd.onclick = () => {
+  if (isAdmin) {
+    btnAdmin.style.display = "inline-block";
+    btnAdmin.onclick = () => {
       painel.style.display = painel.style.display === "none" ? "block" : "none";
     };
+  }
 
-    window.salvarItem = function () {
-      const nome = document.getElementById("nomeItem").value;
-      const valor = document.getElementById("valorItem").value;
-      const foto = document.getElementById("fotoItem").files[0];
+  function salvarItem() {
+    const nome = nomeItem.value;
+    const valor = valorItem.value;
+    const foto = fotoItem.files[0];
 
-      if (!nome || !valor || !foto) {
-        alert("Preencha tudo");
-        return;
-      }
+    if (!nome || !valor || !foto) return alert("Preencha tudo");
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        itens.push({ nome, valor, foto: reader.result });
-        localStorage.setItem("itens", JSON.stringify(itens));
-        carregarItens();
-      };
-      reader.readAsDataURL(foto);
-
+    const reader = new FileReader();
+    reader.onload = () => {
+      itens.push({ nome, valor, foto: reader.result });
+      localStorage.setItem("itens", JSON.stringify(itens));
+      carregar();
       painel.style.display = "none";
     };
+    reader.readAsDataURL(foto);
+  }
 
-    function carregarItens() {
-      lista.innerHTML = "";
-      itens.forEach(item => {
-        lista.innerHTML += `
-          <div class="item">
-            <img src="${item.foto}">
-            <p><strong>${item.nome}</strong></p>
-            <p class="valor">R$ ${item.valor}</p>
-            <button>Presentear</button>
-          </div>
-        `;
-      });
-    }
+  function carregar() {
+    lista.innerHTML = "";
+    itens.forEach(item => {
+      lista.innerHTML += `
+        <div class="item">
+          <img src="${item.foto}">
+          <p><strong>${item.nome}</strong></p>
+          <p class="valor">R$ ${item.valor}</p>
+          <button class="btn-presentear" onclick="abrirModal('${item.nome}','${item.valor}')">
+            Presentear
+          </button>
+        </div>
+      `;
+    });
+  }
 
-    if (isAdmin) btnAdd.style.display = "inline-block";
-    carregarItens();
-  </script>
+  function abrirModal(nome, valor) {
+    modal.style.display = "flex";
+    modalNome.innerText = nome;
+    modalValor.innerText = "Valor: R$ " + valor;
+  }
+
+  function fecharModal() {
+    modal.style.display = "none";
+  }
+
+  carregar();
+</script>
 
 </body>
 </html>
