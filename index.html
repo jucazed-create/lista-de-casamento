@@ -147,14 +147,33 @@
   </div>
 </div>
 
-<script>
-  const isAdmin = location.search.includes("admin=1");
-  const btnAdmin = document.getElementById("btnAdmin");
-  const painel = document.getElementById("painelAdmin");
-  const lista = document.getElementById("lista");
-  const modal = document.getElementById("modal");
+<script type="module">
+  // 🔥 Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { 
+    getStorage, ref, uploadBytes, getDownloadURL 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-  let itens = JSON.parse(localStorage.getItem("itens")) || [];
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_DOMINIO",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE",
+    messagingSenderId: "SEU_SENDER",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  const isAdmin = location.search.includes("admin=1");
+  const lista = document.getElementById("lista");
+  const painel = document.getElementById("painelAdmin");
+  const btnAdmin = document.getElementById("btnAdmin");
 
   if (isAdmin) {
     btnAdmin.style.display = "inline-block";
@@ -163,51 +182,70 @@
     };
   }
 
-  function salvarItem() {
+  // 🔹 SALVAR ITEM
+  window.salvarItem = async function () {
     const nome = nomeItem.value;
     const valor = valorItem.value;
     const foto = fotoItem.files[0];
 
-    if (!nome || !valor || !foto) return alert("Preencha tudo");
+    if (!nome || !valor || !foto) {
+      alert("Preencha tudo");
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      itens.push({ nome, valor, foto: reader.result });
-      localStorage.setItem("itens", JSON.stringify(itens));
-      carregar();
-      painel.style.display = "none";
-    };
-    reader.readAsDataURL(foto);
-  }
+    const imgRef = ref(storage, "itens/" + Date.now());
+    await uploadBytes(imgRef, foto);
+    const url = await getDownloadURL(imgRef);
 
-  function carregar() {
+    await addDoc(collection(db, "itens"), {
+      nome,
+      valor,
+      foto: url,
+      doado: false
+    });
+
+    painel.style.display = "none";
+    carregarItens();
+  };
+
+  // 🔹 CARREGAR ITENS
+  async function carregarItens() {
     lista.innerHTML = "";
-    itens.forEach(item => {
+    const querySnapshot = await getDocs(collection(db, "itens"));
+
+    querySnapshot.forEach(docSnap => {
+      const item = docSnap.data();
       lista.innerHTML += `
-        <div class="item">
+        <div class="item ${item.doado ? 'doado' : ''}">
           <img src="${item.foto}">
           <p><strong>${item.nome}</strong></p>
           <p class="valor">R$ ${item.valor}</p>
-          <button class="btn-presentear" onclick="abrirModal('${item.nome}','${item.valor}')">
-            Presentear
-          </button>
+          ${
+            item.doado 
+            ? "<span>🎁 Já doado</span>"
+            : `<button class="btn-presentear" onclick="abrirModal('${docSnap.id}','${item.nome}','${item.valor}')">Presentear</button>`
+          }
+          ${
+            isAdmin 
+            ? `<button onclick="excluirItem('${docSnap.id}')">Excluir</button>` 
+            : ""
+          }
         </div>
       `;
     });
   }
 
-  function abrirModal(nome, valor) {
-    modal.style.display = "flex";
-    modalNome.innerText = nome;
-    modalValor.innerText = "Valor: R$ " + valor;
-  }
+  // 🔹 EXCLUIR ITEM
+  window.excluirItem = async function (id) {
+    if (confirm("Excluir este item?")) {
+      await deleteDoc(doc(db, "itens", id));
+      carregarItens();
+    }
+  };
 
-  function fecharModal() {
-    modal.style.display = "none";
-  }
-
-  carregar();
+  carregarItens();
 </script>
+
 
 </body>
 </html>
