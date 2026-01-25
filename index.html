@@ -234,6 +234,25 @@
       });
     });
 </script>
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="fechar" onclick="fecharModal()">×</span>
+
+    <img id="modal-img">
+    <h2 id="modal-nome"></h2>
+    <p id="modal-valor"></p>
+
+    <textarea id="mensagem" placeholder="Deixe uma mensagem (opcional) 💕"></textarea>
+
+    <div class="pix-area">
+      <p><strong>Pix para presentear</strong></p>
+      <img src="qrcode-pix.png" class="qrcode">
+      <p>Chave Pix: <strong>SUA_CHAVE_PIX</strong></p>
+    </div>
+
+    <button onclick="confirmarPresente()">Confirmar no WhatsApp</button>
+  </div>
+</div>
 
 </body>
 </html>
