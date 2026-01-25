@@ -1,271 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Lista de Casamento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Ismael e Isadora 💍</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fdfdfd;
+      text-align: center;
+      padding: 15px;
+    }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #ffffff;
-  text-align: center;
-}
- 
-h1 {
-  margin-top: 25px;
-}
+    h1 {
+      margin-top: 10px;
+    }
 
-p {
-  margin-bottom: 25px;
-}
+    .frase {
+      color: #777;
+      margin-bottom: 20px;
+    }
 
-/* LISTA */
-.container {
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
+    button {
+      cursor: pointer;
+    }
 
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
+    #lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
 
-.item {
-  border: 1px solid #eee;
-  border-radius: 16px;
-  padding: 15px;
-  position: relative;
-  background: #fff;
-}
+    .item {
+      border: 2px solid #f3c6d9;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
 
-.item img {
-  width: 100%;
-  height: 140px;
-  object-fit: contain;
+    .item img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
 
-  background: #ffffff;
-  border: 2px solid #f0c6d6;
-  border-radius: 12px;
-  padding: 10px;
+    .valor {
+      color: #444;
+      font-weight: bold;
+    }
 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
+    #painelAdmin {
+      display: none;
+      background: #fff;
+      border: 2px dashed #ccc;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 20px auto;
+    }
 
-.item h4 {
-  margin: 10px 0 5px;
-}
-
-.item button {
-  background: #e91e63;
-  color: white;
-  border: none;
-  padding: 10px;
-  width: 100%;
-  border-radius: 10px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.item button:hover {
-  opacity: 0.9;
-}
-
-.selo {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #e91e63;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-/* MODAL */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 999;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  width: 90%;
-  max-width: 420px;
-  border-radius: 20px;
-}
-
-.modal-content img {
-  width: 100%;
-  height: 200px;
-  object-fit: contain;
-  border: 2px solid #f0c6d6;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-
-.modal textarea {
-  width: 100%;
-  height: 80px;
-  margin: 10px 0;
-  padding: 8px;
-  border-radius: 10px;
-}
-
-.modal button {
-  background: #25D366;
-  color: white;
-  padding: 12px;
-  width: 100%;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-}
-
-.fechar {
-  float: right;
-  cursor: pointer;
-  font-size: 20px;
-}
-
-.qrcode {
-  width: 200px;
-  margin: 10px auto;
-}
-</style>
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+  </style>
 </head>
 
 <body>
- <img src="casal.jpg" style="
-  width: 200px;
-  border-radius: 50%;
-  margin-top: 20px;
-">
-<h1>Ismael e Isadora</h1>
-<p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
-  
-<div id="painelAdmin" style="
-  display:none;
-  background:#fff;
-  border:2px dashed #ccc;
-  padding:15px;
-  border-radius:12px;
-  max-width:400px;
-  margin:20px auto;
-">
 
-  <h3>➕ Adicionar novo item</h3>
+  <!-- FOTO DO CASAL -->
+  <img src="casal.jpg" style="width:200px;border-radius:50%;margin-top:20px;">
 
-  <input id="nomeItem" placeholder="Nome do item" style="width:100%; margin-bottom:8px; padding:6px;">
-  
-  <input id="valorItem" type="number" placeholder="Valor (R$)" style="width:100%; margin-bottom:8px; padding:6px;">
-  
-  <input id="fotoItem" type="file" accept="image/*" style="width:100%; margin-bottom:8px;">
+  <h1>Ismael e Isadora</h1>
+  <p class="frase">Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
 
-  <button onclick="salvarItem()" style="
-    width:100%;
-    background:#f5c2d9;
-    border:none;
-    padding:10px;
-    border-radius:8px;
-    font-weight:bold;
-  ">
-    Salvar item
-  </button>
+  <!-- BOTÃO ADMIN -->
+  <button onclick="ativarAdmin()">Sou admin</button>
+  <button id="btnAdicionar" style="display:none;">+ Adicionar item</button>
 
-</div>
+  <!-- PAINEL ADMIN -->
+  <div id="painelAdmin">
+    <h3>Adicionar item</h3>
 
+    <input id="nomeItem" placeholder="Nome do item">
+    <input id="valorItem" type="number" placeholder="Valor (R$)">
+    <input id="fotoItem" type="file" accept="image/*">
 
-<div class="container" id="lista"></div>
-
-<!-- MODAL -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="fechar" onclick="fecharModal()">×</span>
-
-    <img id="modal-img">
-    <h3 id="modal-nome"></h3>
-    <p id="modal-valor"></p>
-
-    <textarea id="mensagem" placeholder="Deixe uma mensagem (opcional) 💕"></textarea>
-
-    <p><strong>Pix para presentear</strong></p>
-    <img src="qrcode-pix.png" class="qrcode">
-
-    <button onclick="confirmarPresente()">Confirmar no WhatsApp</button>
-  </div>
-</div>
-
-<script type="module">
-  // ===============================
-  // CONFIG ADMIN
-  // ===============================
-  const ADMIN_CODE = "ismaelisadora2026";
-  let isAdmin = localStorage.getItem("admin") === "true";
-
-  // ===============================
-  // FUNÇÃO ADMIN (GLOBAL)
-  // ===============================
-  window.ativarAdmin = function () {
-    const codigo = prompt("Digite o código de admin:");
-
-    if (codigo === ADMIN_CODE) {
-      isAdmin = true;
-      localStorage.setItem("admin", "true");
-
-      const btn = document.getElementById("btnAdicionar");
-      if (btn) btn.style.display = "block";
-
-      alert("Modo admin ativado ✅");
-    } else {
-      alert("Código incorreto ❌");
-    }
-  };
-
-  // ===============================
-  // AO CARREGAR A PÁGINA
-  // ===============================
-  window.addEventListener("DOMContentLoaded", () => {
-    if (isAdmin) {
-      const btn = document.getElementById("btnAdicionar");
-      if (btn) btn.style.display = "block";
-    }
-  });
-</script>
-
-
-<div id="modalAdd" class="modal">
-  <div class="modal-content">
-    <span class="fechar" onclick="fecharAdicionar()">×</span>
-
-    <h3>Adicionar novo item</h3>
-
-    <input id="addNome" placeholder="Nome do item" style="width:100%;padding:8px;margin:5px 0;">
-    <input id="addValor" placeholder="Valor (ex: 150)" type="number" style="width:100%;padding:8px;margin:5px 0;">
-    <input id="addImagem" placeholder="Link da imagem (https://...jpg)" style="width:100%;padding:8px;margin:5px 0;">
-
-    <button onclick="salvarItem()" style="
-      background:#4CAF50;
-      color:white;
-      border:none;
-      padding:10px;
-      width:100%;
-      border-radius:10px;
-      margin-top:10px;
-    ">
+    <button onclick="salvarItem()" style="background:#f3c6d9;border:none;padding:10px;border-radius:8px;">
       Salvar item
     </button>
   </div>
-</div>
 
+  <!-- LISTA -->
+  <div id="lista"></div>
+
+  <!-- SCRIPT -->
+  <script type="module">
+    const ADMIN_CODE = "ismaelisadora2026";
+    let isAdmin = localStorage.getItem("admin") === "true";
+    let itens = JSON.parse(localStorage.getItem("itens")) || [];
+
+    const lista = document.getElementById("lista");
+    const painel = document.getElementById("painelAdmin");
+    const btnAdd = document.getElementById("btnAdicionar");
+
+    window.ativarAdmin = function () {
+      const codigo = prompt("Digite o código de admin:");
+      if (codigo === ADMIN_CODE) {
+        isAdmin = true;
+        localStorage.setItem("admin", "true");
+        btnAdd.style.display = "inline-block";
+        alert("Modo admin ativado");
+      } else {
+        alert("Código incorreto");
+      }
+    };
+
+    btnAdd.onclick = () => {
+      painel.style.display = painel.style.display === "none" ? "block" : "none";
+    };
+
+    window.salvarItem = function () {
+      const nome = document.getElementById("nomeItem").value;
+      const valor = document.getElementById("valorItem").value;
+      const foto = document.getElementById("fotoItem").files[0];
+
+      if (!nome || !valor || !foto) {
+        alert("Preencha tudo");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        itens.push({ nome, valor, foto: reader.result });
+        localStorage.setItem("itens", JSON.stringify(itens));
+        carregarItens();
+      };
+      reader.readAsDataURL(foto);
+
+      painel.style.display = "none";
+    };
+
+    function carregarItens() {
+      lista.innerHTML = "";
+      itens.forEach(item => {
+        lista.innerHTML += `
+          <div class="item">
+            <img src="${item.foto}">
+            <p><strong>${item.nome}</strong></p>
+            <p class="valor">R$ ${item.valor}</p>
+            <button>Presentear</button>
+          </div>
+        `;
+      });
+    }
+
+    if (isAdmin) btnAdd.style.display = "inline-block";
+    carregarItens();
+  </script>
 
 </body>
 </html>
