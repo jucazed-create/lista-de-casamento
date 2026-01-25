@@ -170,7 +170,8 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  const isAdmin = location.search.includes("admin=1");
+ const params = new URLSearchParams(window.location.search);
+const isAdmin = params.get("admin") === "1";
   const lista = document.getElementById("lista");
   const painel = document.getElementById("painelAdmin");
   const btnAdmin = document.getElementById("btnAdmin");
