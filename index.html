@@ -39,10 +39,14 @@
     }
 
     .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-    }
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
 
     .item {
       background: white;
