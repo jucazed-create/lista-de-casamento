@@ -152,16 +152,36 @@ p {
 <h1>Ismael e Isadora</h1>
 <p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
   
-<button onclick="ativarAdmin()" style="
-  background:#eee;
-  border:none;
-  padding:6px 12px;
-  border-radius:8px;
-  font-size:12px;
-  margin-bottom:15px;
+<div id="painelAdmin" style="
+  display:none;
+  background:#fff;
+  border:2px dashed #ccc;
+  padding:15px;
+  border-radius:12px;
+  max-width:400px;
+  margin:20px auto;
 ">
-  Sou admin
-</button>
+
+  <h3>➕ Adicionar novo item</h3>
+
+  <input id="nomeItem" placeholder="Nome do item" style="width:100%; margin-bottom:8px; padding:6px;">
+  
+  <input id="valorItem" type="number" placeholder="Valor (R$)" style="width:100%; margin-bottom:8px; padding:6px;">
+  
+  <input id="fotoItem" type="file" accept="image/*" style="width:100%; margin-bottom:8px;">
+
+  <button onclick="salvarItem()" style="
+    width:100%;
+    background:#f5c2d9;
+    border:none;
+    padding:10px;
+    border-radius:8px;
+    font-weight:bold;
+  ">
+    Salvar item
+  </button>
+
+</div>
 
 
 <div class="container" id="lista"></div>
