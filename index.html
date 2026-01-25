@@ -162,6 +162,19 @@ p {
 ">
   Sou admin
 </button>
+  
+<button id="btnAdicionar" onclick="abrirAdicionar()" style="
+  display:none;
+  background:#4CAF50;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  font-size:13px;
+  margin-bottom:20px;
+">
+  ➕ Adicionar item
+</button>
 
 <div class="container" id="lista"></div>
 
@@ -185,7 +198,7 @@ p {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
@@ -198,14 +211,16 @@ const ADMIN_CODE = "ismaelisadora2026";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let itemAtual = null;
 let isAdmin = localStorage.getItem("admin") === "true";
+let itemAtual = null;
 
+/* ===== ADMIN ===== */
 window.ativarAdmin = function() {
   const codigo = prompt("Digite o código de admin:");
   if (codigo === ADMIN_CODE) {
     localStorage.setItem("admin", "true");
     isAdmin = true;
+    document.getElementById("btnAdicionar").style.display = "inline-block";
     alert("Modo admin ativado");
     carregarItens();
   } else {
@@ -213,10 +228,48 @@ window.ativarAdmin = function() {
   }
 };
 
+window.abrirAdicionar = function() {
+  document.getElementById("modalAdd").style.display = "flex";
+};
+
+window.fecharAdicionar = function() {
+  document.getElementById("modalAdd").style.display = "none";
+};
+
+window.salvarItem = async function() {
+  const nome = addNome.value.trim();
+  const valor = addValor.value.trim();
+  const imagem = addImagem.value.trim();
+
+  if (!nome || !valor || !imagem) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  await addDoc(collection(db, "itens"), {
+    nome,
+    valor,
+    imagem,
+    doado: false
+  });
+
+  fecharAdicionar();
+  carregarItens();
+
+  addNome.value = "";
+  addValor.value = "";
+  addImagem.value = "";
+};
+
+/* ===== LISTA ===== */
 async function carregarItens() {
   const querySnapshot = await getDocs(collection(db, "itens"));
   const lista = document.getElementById("lista");
   lista.innerHTML = "";
+
+  if (isAdmin) {
+    document.getElementById("btnAdicionar").style.display = "inline-block";
+  }
 
   querySnapshot.forEach((docSnap) => {
     const item = docSnap.data();
@@ -251,22 +304,23 @@ async function carregarItens() {
 }
 
 window.deletarItem = async function(id) {
-  if (confirm("Tem certeza que deseja deletar este item?")) {
+  if (confirm("Deseja deletar este item?")) {
     await deleteDoc(doc(db, "itens", id));
     carregarItens();
   }
 };
 
+/* ===== MODAL PRESENTEAR ===== */
 window.abrirModal = function(item) {
   itemAtual = item;
-  document.getElementById("modal").style.display = "flex";
-  document.getElementById("modal-img").src = item.imagem;
-  document.getElementById("modal-nome").innerText = item.nome;
-  document.getElementById("modal-valor").innerText = "R$ " + item.valor;
+  modal.style.display = "flex";
+  modal-img.src = item.imagem;
+  modal-nome.innerText = item.nome;
+  modal-valor.innerText = "R$ " + item.valor;
 };
 
 window.fecharModal = function() {
-  document.getElementById("modal").style.display = "none";
+  modal.style.display = "none";
 };
 
 window.confirmarPresente = async function() {
@@ -281,6 +335,31 @@ window.confirmarPresente = async function() {
 
 carregarItens();
 </script>
+
+
+<div id="modalAdd" class="modal">
+  <div class="modal-content">
+    <span class="fechar" onclick="fecharAdicionar()">×</span>
+
+    <h3>Adicionar novo item</h3>
+
+    <input id="addNome" placeholder="Nome do item" style="width:100%;padding:8px;margin:5px 0;">
+    <input id="addValor" placeholder="Valor (ex: 150)" type="number" style="width:100%;padding:8px;margin:5px 0;">
+    <input id="addImagem" placeholder="Link da imagem (https://...jpg)" style="width:100%;padding:8px;margin:5px 0;">
+
+    <button onclick="salvarItem()" style="
+      background:#4CAF50;
+      color:white;
+      border:none;
+      padding:10px;
+      width:100%;
+      border-radius:10px;
+      margin-top:10px;
+    ">
+      Salvar item
+    </button>
+  </div>
+</div>
 
 
 </body>
