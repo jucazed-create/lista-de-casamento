@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <title>Lista de Casamento</title>
 
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       font-family: Georgia, serif;
@@ -77,7 +81,6 @@
       width: 100%;
     }
 
-    /* BOTÃO ADMIN */
     #btnAdmin {
       display: none;
       position: fixed;
@@ -88,20 +91,14 @@
       border: none;
       padding: 14px 18px;
       border-radius: 30px;
-      font-size: 16px;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       z-index: 9999;
     }
 
-    /* MODAL */
     .modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       background: rgba(0,0,0,0.6);
       justify-content: center;
       align-items: center;
@@ -115,11 +112,6 @@
       width: 90%;
       max-width: 400px;
       text-align: left;
-    }
-
-    .modal-content h2 {
-      text-align: center;
-      color: #8b3a62;
     }
 
     .modal-content input {
@@ -155,92 +147,82 @@
 
 <button id="btnAdmin" onclick="abrirModal()">➕ Adicionar item</button>
 
-<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content">
-    <h2>Novo presente</h2>
-
-    <input type="text" id="nomeItem" placeholder="Nome do item">
-    <input type="number" id="valorItem" placeholder="Valor (R$)">
-    <input type="file" id="fotoItem" accept="image/*">
-
-    <button onclick="salvarItem()">Salvar item</button>
+    <h3>Novo presente</h3>
+    <input id="nomeItem" placeholder="Nome do item">
+    <input id="valorItem" type="number" placeholder="Valor (R$)">
+    <input id="fotoItem" type="file" accept="image/*">
+    <button onclick="salvarItem()">Salvar</button>
     <button onclick="fecharModal()" style="background:#aaa;">Cancelar</button>
   </div>
 </div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const isAdmin = params.get('admin') === '1';
+  // 🔥 Firebase config (SEU)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
+    authDomain: "lista-casamento-ismael-isadora.firebaseapp.com",
+    projectId: "lista-casamento-ismael-isadora",
+    storageBucket: "lista-casamento-ismael-isadora.firebasestorage.app",
+    messagingSenderId: "144463156414",
+    appId: "1:144463156414:web:4f0e03c3153f61d36dbaef"
+  };
 
-  if (isAdmin) {
-    document.getElementById('btnAdmin').style.display = 'block';
-  }
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  let itens = JSON.parse(localStorage.getItem('itensCasamento')) || [];
-
-  function renderizarLista() {
-    const lista = document.getElementById('lista');
-    lista.innerHTML = '';
-
-    itens.forEach((item, index) => {
-      const div = document.createElement('div');
-      div.className = 'item';
-      div.innerHTML = `
-        <img src="${item.foto}">
-        <h3>${item.nome}</h3>
-        <span>R$ ${item.valor}</span>
-        <button onclick="presentear('${item.nome}')">Presentear</button>
-      `;
-      lista.appendChild(div);
-    });
-  }
+  const isAdmin = new URLSearchParams(window.location.search).get("admin") === "1";
+  if (isAdmin) document.getElementById("btnAdmin").style.display = "block";
 
   function abrirModal() {
-    document.getElementById('modal').style.display = 'flex';
+    document.getElementById("modal").style.display = "flex";
   }
 
   function fecharModal() {
-    document.getElementById('modal').style.display = 'none';
+    document.getElementById("modal").style.display = "none";
   }
 
   function salvarItem() {
-    const nome = document.getElementById('nomeItem').value;
-    const valor = document.getElementById('valorItem').value;
-    const foto = document.getElementById('fotoItem').files[0];
+    const nome = nomeItem.value;
+    const valor = valorItem.value;
+    const foto = fotoItem.files[0];
 
     if (!nome || !valor || !foto) {
-      alert('Preencha todos os campos');
+      alert("Preencha tudo");
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = function () {
-      itens.push({
+    reader.onload = () => {
+      db.collection("itens").add({
         nome,
         valor,
-        foto: reader.result
+        foto: reader.result,
+        criadoEm: new Date()
       });
-
-      localStorage.setItem('itensCasamento', JSON.stringify(itens));
       fecharModal();
-      renderizarLista();
     };
     reader.readAsDataURL(foto);
   }
 
-  function presentear(item) {
-    const msg = encodeURIComponent(
-      'Olá! Gostaria de presentear o item: ' + item + ' 💕'
-    );
-
-    window.open(
-      'https://wa.me/55SEUNUMEROAQUI?text=' + msg,
-      '_blank'
-    );
-  }
-
-  renderizarLista();
+  db.collection("itens").orderBy("criadoEm")
+    .onSnapshot(snapshot => {
+      lista.innerHTML = "";
+      snapshot.forEach(doc => {
+        const i = doc.data();
+        lista.innerHTML += `
+          <div class="item">
+            <img src="${i.foto}">
+            <h3>${i.nome}</h3>
+            <span>R$ ${i.valor}</span>
+            <button onclick="window.open('https://wa.me/55SEUNUMEROAQUI')">
+              Presentear
+            </button>
+          </div>
+        `;
+      });
+    });
 </script>
 
 </body>
