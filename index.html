@@ -151,8 +151,8 @@ p {
 ">
 <h1>Ismael e Isadora</h1>
 <p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
-
-  <button onclick="ativarAdmin()" style="
+  
+<button onclick="ativarAdmin()" style="
   background:#eee;
   border:none;
   padding:6px 12px;
@@ -162,19 +162,7 @@ p {
 ">
   Sou admin
 </button>
-  
-<button id="btnAdicionar" onclick="abrirAdicionar()" style="
-  display:none;
-  background:#4CAF50;
-  color:white;
-  border:none;
-  padding:8px 14px;
-  border-radius:8px;
-  font-size:13px;
-  margin-bottom:20px;
-">
-  ➕ Adicionar item
-</button>
+
 
 <div class="container" id="lista"></div>
 
@@ -197,143 +185,40 @@ p {
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  // ===============================
+  // CONFIG ADMIN
+  // ===============================
+  const ADMIN_CODE = "ismaelisadora2026";
+  let isAdmin = localStorage.getItem("admin") === "true";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
-  authDomain: "lista-casamento-ismael-isadora.firebaseapp.com",
-  projectId: "lista-casamento-ismael-isadora"
-};
+  // ===============================
+  // FUNÇÃO ADMIN (GLOBAL)
+  // ===============================
+  window.ativarAdmin = function () {
+    const codigo = prompt("Digite o código de admin:");
 
-const ADMIN_CODE = "ismaelisadora2026";
+    if (codigo === ADMIN_CODE) {
+      isAdmin = true;
+      localStorage.setItem("admin", "true");
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+      const btn = document.getElementById("btnAdicionar");
+      if (btn) btn.style.display = "block";
 
-let isAdmin = localStorage.getItem("admin") === "true";
-let itemAtual = null;
-
-/* ===== ADMIN ===== */
-window.ativarAdmin = function() {
-  const codigo = prompt("Digite o código de admin:");
-  if (codigo === ADMIN_CODE) {
-    localStorage.setItem("admin", "true");
-    isAdmin = true;
-    document.getElementById("btnAdicionar").style.display = "inline-block";
-    alert("Modo admin ativado");
-    carregarItens();
-  } else {
-    alert("Código incorreto");
-  }
-};
-
-window.abrirAdicionar = function() {
-  document.getElementById("modalAdd").style.display = "flex";
-};
-
-window.fecharAdicionar = function() {
-  document.getElementById("modalAdd").style.display = "none";
-};
-
-window.salvarItem = async function() {
-  const nome = addNome.value.trim();
-  const valor = addValor.value.trim();
-  const imagem = addImagem.value.trim();
-
-  if (!nome || !valor || !imagem) {
-    alert("Preencha todos os campos");
-    return;
-  }
-
-  await addDoc(collection(db, "itens"), {
-    nome,
-    valor,
-    imagem,
-    doado: false
-  });
-
-  fecharAdicionar();
-  carregarItens();
-
-  addNome.value = "";
-  addValor.value = "";
-  addImagem.value = "";
-};
-
-/* ===== LISTA ===== */
-async function carregarItens() {
-  const querySnapshot = await getDocs(collection(db, "itens"));
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
-
-  if (isAdmin) {
-    document.getElementById("btnAdicionar").style.display = "inline-block";
-  }
-
-  querySnapshot.forEach((docSnap) => {
-    const item = docSnap.data();
-    const div = document.createElement("div");
-    div.className = "item";
-
-    if (item.doado) {
-      div.innerHTML += `<span class="selo">Já presenteado 💝</span>`;
+      alert("Modo admin ativado ✅");
+    } else {
+      alert("Código incorreto ❌");
     }
+  };
 
-    div.innerHTML += `
-      <img src="${item.imagem}">
-      <h4>${item.nome}</h4>
-      <p>R$ ${item.valor}</p>
-    `;
-
-    if (!item.doado) {
-      div.innerHTML += `<button onclick='abrirModal(${JSON.stringify({id: docSnap.id, ...item})})'>Presentear</button>`;
-    }
-
+  // ===============================
+  // AO CARREGAR A PÁGINA
+  // ===============================
+  window.addEventListener("DOMContentLoaded", () => {
     if (isAdmin) {
-      div.innerHTML += `
-        <button style="background:#b00020;margin-top:5px"
-          onclick="deletarItem('${docSnap.id}')">
-          🗑️ Deletar
-        </button>
-      `;
+      const btn = document.getElementById("btnAdicionar");
+      if (btn) btn.style.display = "block";
     }
-
-    lista.appendChild(div);
   });
-}
-
-window.deletarItem = async function(id) {
-  if (confirm("Deseja deletar este item?")) {
-    await deleteDoc(doc(db, "itens", id));
-    carregarItens();
-  }
-};
-
-/* ===== MODAL PRESENTEAR ===== */
-window.abrirModal = function(item) {
-  itemAtual = item;
-  modal.style.display = "flex";
-  modal-img.src = item.imagem;
-  modal-nome.innerText = item.nome;
-  modal-valor.innerText = "R$ " + item.valor;
-};
-
-window.fecharModal = function() {
-  modal.style.display = "none";
-};
-
-window.confirmarPresente = async function() {
-  await updateDoc(doc(db, "itens", itemAtual.id), { doado: true });
-
-  const texto = `Presenteei o item: ${itemAtual.nome}`;
-  window.open(`https://wa.me/55SEUNUMERO?text=${encodeURIComponent(texto)}`, "_blank");
-
-  fecharModal();
-  carregarItens();
-};
-
-carregarItens();
 </script>
 
 
