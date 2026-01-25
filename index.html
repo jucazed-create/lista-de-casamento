@@ -152,6 +152,17 @@ p {
 <h1>Ismael e Isadora</h1>
 <p>Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
 
+  <button onclick="ativarAdmin()" style="
+  background:#eee;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  font-size:12px;
+  margin-bottom:15px;
+">
+  Sou admin
+</button>
+
 <div class="container" id="lista"></div>
 
 <!-- MODAL -->
@@ -174,7 +185,7 @@ p {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
@@ -182,10 +193,25 @@ const firebaseConfig = {
   projectId: "lista-casamento-ismael-isadora"
 };
 
+const ADMIN_CODE = "ismaelisadora2026";
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let itemAtual = null;
+let isAdmin = localStorage.getItem("admin") === "true";
+
+window.ativarAdmin = function() {
+  const codigo = prompt("Digite o código de admin:");
+  if (codigo === ADMIN_CODE) {
+    localStorage.setItem("admin", "true");
+    isAdmin = true;
+    alert("Modo admin ativado");
+    carregarItens();
+  } else {
+    alert("Código incorreto");
+  }
+};
 
 async function carregarItens() {
   const querySnapshot = await getDocs(collection(db, "itens"));
@@ -198,19 +224,38 @@ async function carregarItens() {
     div.className = "item";
 
     if (item.doado) {
-      div.innerHTML = `<span class="selo">Já presenteado 💝</span>`;
+      div.innerHTML += `<span class="selo">Já presenteado 💝</span>`;
     }
 
     div.innerHTML += `
       <img src="${item.imagem}">
       <h4>${item.nome}</h4>
       <p>R$ ${item.valor}</p>
-      ${item.doado ? "" : `<button onclick='abrirModal(${JSON.stringify({id: docSnap.id, ...item})})'>Presentear</button>`}
     `;
+
+    if (!item.doado) {
+      div.innerHTML += `<button onclick='abrirModal(${JSON.stringify({id: docSnap.id, ...item})})'>Presentear</button>`;
+    }
+
+    if (isAdmin) {
+      div.innerHTML += `
+        <button style="background:#b00020;margin-top:5px"
+          onclick="deletarItem('${docSnap.id}')">
+          🗑️ Deletar
+        </button>
+      `;
+    }
 
     lista.appendChild(div);
   });
 }
+
+window.deletarItem = async function(id) {
+  if (confirm("Tem certeza que deseja deletar este item?")) {
+    await deleteDoc(doc(db, "itens", id));
+    carregarItens();
+  }
+};
 
 window.abrirModal = function(item) {
   itemAtual = item;
@@ -218,11 +263,11 @@ window.abrirModal = function(item) {
   document.getElementById("modal-img").src = item.imagem;
   document.getElementById("modal-nome").innerText = item.nome;
   document.getElementById("modal-valor").innerText = "R$ " + item.valor;
-}
+};
 
 window.fecharModal = function() {
   document.getElementById("modal").style.display = "none";
-}
+};
 
 window.confirmarPresente = async function() {
   await updateDoc(doc(db, "itens", itemAtual.id), { doado: true });
@@ -232,10 +277,11 @@ window.confirmarPresente = async function() {
 
   fecharModal();
   carregarItens();
-}
+};
 
 carregarItens();
 </script>
+
 
 </body>
 </html>
