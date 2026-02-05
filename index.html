@@ -1,242 +1,104 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Lista de Casamento</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Casamento | Ismael e Isadora</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fafafa;
-      text-align: center;
-      padding: 20px;
-    }
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    .casal {
-      width: 180px;
-      border-radius: 50%;
-      border: 4px solid #f3c6d9;
-      margin: 10px auto;
-      display: block;
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
+      authDomain: "lista-casamento-ismael-isadora.firebaseapp.com",
+      projectId: "lista-casamento-ismael-isadora",
+      storageBucket: "lista-casamento-ismael-isadora.appspot.com",
+      messagingSenderId: "144463156414",
+      appId: "1:144463156414:web:4f0e03c3153f61d36dbaef"
+    };
 
-    h1 {
-      margin: 10px 0 5px;
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    .frase {
-      color: #777;
-      margin-bottom: 25px;
-    }
+    const lista = document.getElementById('lista');
+    const form = document.getElementById('adminForm');
 
-    #lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 15px;
-      max-width: 900px;
-      margin: auto;
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdmin = urlParams.get('admin') === '1';
 
-    .item {
-      background: #fff;
-      border-radius: 14px;
-      padding: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.08);
-    }
+    if (isAdmin) document.getElementById('adminArea').style.display = 'block';
 
-    .item img {
-      width: 100%;
-      height: 130px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid #eee;
-    }
+    onSnapshot(collection(db, 'itens'), (snapshot) => {
+      lista.innerHTML = '';
+      snapshot.forEach((docSnap) => {
+        const item = docSnap.data();
+        const id = docSnap.id;
 
-    .valor {
-      font-weight: bold;
-      color: #444;
-    }
-
-    button {
-      border: none;
-      padding: 8px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-presentear {
-      background: #f3c6d9;
-      margin-top: 6px;
-    }
-
-    .btn-admin {
-      background: #333;
-      color: #fff;
-      margin: 15px 0;
-    }
-
-    #painelAdmin {
-      display: none;
-      background: #fff;
-      padding: 15px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: 20px auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 8px;
-    }
-
-    /* MODAL */
-    #modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.5);
-      align-items: center;
-      justify-content: center;
-    }
-
-    #modalContent {
-      background: #fff;
-      padding: 20px;
-      border-radius: 14px;
-      max-width: 320px;
-      width: 90%;
-      text-align: center;
-    }
-  </style>
-</head>
-
-<body>
-
-  <img src="casal.jpg" class="casal">
-
-  <h1>Ismael e Isadora</h1>
-  <p class="frase">Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
-
-  <!-- BOTÃO ADMIN (SÓ COM LINK SECRETO) -->
-  <button id="btnAdmin" class="btn-admin" style="display:none;">
-    + Adicionar item
-  </button>
-
-  <!-- PAINEL ADMIN -->
-  <div id="painelAdmin">
-    <h3>Adicionar item</h3>
-    <input id="nomeItem" placeholder="Nome do item">
-    <input id="valorItem" type="number" placeholder="Valor (R$)">
-    <input id="fotoItem" type="file" accept="image/*">
-    <button class="btn-presentear" id="salvarItemBtn">Salvar</button>
-  </div>
-
-  <!-- LISTA -->
-  <div id="lista"></div>
-
-  <!-- MODAL PRESENTEAR -->
-  <div id="modal">
-    <div id="modalContent">
-      <h3 id="modalNome"></h3>
-      <p id="modalValor"></p>
-
-      <p><strong>PIX:</strong></p>
-      <p>SEU_PIX_AQUI</p>
-
-      <textarea placeholder="Mensagem (opcional)"></textarea>
-
-      <button class="btn-presentear" id="fecharModalBtn">
-        Fechar
-      </button>
-    </div>
-  </div>
-
-  <!-- SCRIPT (REVISADO) -->
-  <script>
-    /* ========= ADMIN ========= */
-    const params = new URLSearchParams(window.location.search);
-    const isAdmin = params.get("admin") === "1";
-
-    const btnAdmin = document.getElementById("btnAdmin");
-    const painelAdmin = document.getElementById("painelAdmin");
-
-    if (isAdmin) {
-      btnAdmin.style.display = "inline-block";
-    }
-
-    btnAdmin.addEventListener("click", () => {
-      painelAdmin.style.display =
-        painelAdmin.style.display === "none" ? "block" : "none";
-    });
-
-    /* ========= DADOS ========= */
-    const lista = document.getElementById("lista");
-    let itens = JSON.parse(localStorage.getItem("itens")) || [];
-
-    /* ========= SALVAR ITEM ========= */
-    document.getElementById("salvarItemBtn").addEventListener("click", () => {
-      const nome = nomeItem.value.trim();
-      const valor = valorItem.value;
-      const foto = fotoItem.files[0];
-
-      if (!nome || !valor || !foto) {
-        alert("Preencha todos os campos");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        itens.push({
-          nome,
-          valor,
-          foto: reader.result
-        });
-        localStorage.setItem("itens", JSON.stringify(itens));
-        painelAdmin.style.display = "none";
-        nomeItem.value = "";
-        valorItem.value = "";
-        fotoItem.value = "";
-        renderizar();
-      };
-      reader.readAsDataURL(foto);
-    });
-
-    /* ========= RENDER ========= */
-    function renderizar() {
-      lista.innerHTML = "";
-      itens.forEach((item, index) => {
         lista.innerHTML += `
-          <div class="item">
-            <img src="${item.foto}">
-            <p><strong>${item.nome}</strong></p>
-            <p class="valor">R$ ${item.valor}</p>
-            <button class="btn-presentear" onclick="abrirModal(${index})">
-              Presentear
-            </button>
+          <div class="card ${item.doado ? 'doado' : ''}">
+            <img src="${item.imagem}" />
+            <h3>${item.nome}</h3>
+            <p>R$ ${item.valor}</p>
+            ${item.doado ? '<span class="selo">DOADO</span>' : `<button onclick="presentear('${id}')">Presentear</button>`}
+            ${isAdmin ? `<button onclick="excluir('${id}')" class="excluir">Excluir</button>` : ''}
           </div>
         `;
       });
-    }
-
-    /* ========= MODAL ========= */
-    const modal = document.getElementById("modal");
-
-    window.abrirModal = function (index) {
-      modal.style.display = "flex";
-      modalNome.innerText = itens[index].nome;
-      modalValor.innerText = "Valor: R$ " + itens[index].valor;
-    };
-
-    document.getElementById("fecharModalBtn").addEventListener("click", () => {
-      modal.style.display = "none";
     });
 
-    renderizar();
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addDoc(collection(db, 'itens'), {
+        nome: nome.value,
+        valor: valor.value,
+        imagem: imagem.value,
+        doado: false
+      });
+      form.reset();
+    });
+
+    window.presentear = async (id) => {
+      await updateDoc(doc(db, 'itens', id), { doado: true });
+      window.location.href = 'https://wa.me/5599999999999?text=Presenteei um item da lista 💕';
+    }
+
+    window.excluir = async (id) => {
+      if (confirm('Excluir item?')) await deleteDoc(doc(db, 'itens', id));
+    }
   </script>
+
+  <style>
+    body { font-family: Arial; background:#fafafa; text-align:center; }
+    h1 { color:#c06; }
+    .frase { margin-bottom:20px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; padding:20px; }
+    .card { background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    img { width:100%; height:180px; object-fit:cover; border-radius:10px; }
+    button { background:#c06; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; }
+    .excluir { background:#999; margin-top:10px; }
+    .doado { opacity:0.6; }
+    .selo { display:block; color:green; font-weight:bold; margin-top:10px; }
+    #adminArea { display:none; background:#fff; padding:20px; margin:20px; border-radius:12px; }
+  </style>
+</head>
+<body>
+
+<h1>Ismael e Isadora</h1>
+<p class="frase">Com amor Deus nos uniu, com amor criamos nosso lar 💕</p>
+
+<div id="adminArea">
+  <h2>Adicionar Item</h2>
+  <form id="adminForm">
+    <input id="nome" placeholder="Nome do item" required /><br><br>
+    <input id="valor" placeholder="Valor" required /><br><br>
+    <input id="imagem" placeholder="URL da imagem" required /><br><br>
+    <button type="submit">Adicionar</button>
+  </form>
+</div>
+
+<div id="lista" class="grid"></div>
 
 </body>
 </html>
