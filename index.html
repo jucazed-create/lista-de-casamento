@@ -1,252 +1,242 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Lista de Casamento</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Lista de Casamento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #fafafa;
-    text-align: center;
-    padding: 20px;
-  }
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      text-align: center;
+      padding: 20px;
+    }
 
-  img.casal {
-    width: 180px;
-    border-radius: 50%;
-    margin: 10px auto;
-    display: block;
-    border: 4px solid #f3c6d9;
-  }
+    .casal {
+      width: 180px;
+      border-radius: 50%;
+      border: 4px solid #f3c6d9;
+      margin: 10px auto;
+      display: block;
+    }
 
-  h1 {
-    margin: 10px 0 5px;
-  }
+    h1 {
+      margin: 10px 0 5px;
+    }
 
-  .frase {
-    color: #777;
-    margin-bottom: 20px;
-  }
+    .frase {
+      color: #777;
+      margin-bottom: 25px;
+    }
 
-  #lista {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 15px;
-    max-width: 900px;
-    margin: auto;
-  }
+    #lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 15px;
+      max-width: 900px;
+      margin: auto;
+    }
 
-  .item {
-    background: #fff;
-    border-radius: 14px;
-    padding: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,.08);
-  }
+    .item {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
 
-  .item img {
-    width: 100%;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 10px;
-    border: 1px solid #eee;
-  }
+    .item img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #eee;
+    }
 
-  .valor {
-    font-weight: bold;
-    color: #444;
-  }
+    .valor {
+      font-weight: bold;
+      color: #444;
+    }
 
-  button {
-    border: none;
-    padding: 8px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: bold;
-  }
+    button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-  .btn-presentear {
-    background: #f3c6d9;
-    margin-top: 6px;
-  }
+    .btn-presentear {
+      background: #f3c6d9;
+      margin-top: 6px;
+    }
 
-  .btn-admin {
-    background: #333;
-    color: #fff;
-    margin: 10px;
-  }
+    .btn-admin {
+      background: #333;
+      color: #fff;
+      margin: 15px 0;
+    }
 
-  #painelAdmin {
-    display: none;
-    background: #fff;
-    padding: 15px;
-    border-radius: 12px;
-    max-width: 400px;
-    margin: 20px auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,.1);
-  }
+    #painelAdmin {
+      display: none;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 20px auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
 
-  input, textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 8px;
-  }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
 
-  /* MODAL */
-  #modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.5);
-    align-items: center;
-    justify-content: center;
-  }
+    /* MODAL */
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      align-items: center;
+      justify-content: center;
+    }
 
-  #modalContent {
-    background: #fff;
-    padding: 20px;
-    border-radius: 14px;
-    max-width: 300px;
-    width: 90%;
-  }
-</style>
+    #modalContent {
+      background: #fff;
+      padding: 20px;
+      border-radius: 14px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
 
-<img src="casal.jpg" class="casal">
+  <img src="casal.jpg" class="casal">
 
-<h1>Ismael e Isadora</h1>
-<p class="frase">Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
+  <h1>Ismael e Isadora</h1>
+  <p class="frase">Com amor Deus nos uniu, Com amor, criamos nosso lar 💕</p>
 
-<button id="btnAdmin" class="btn-admin" style="display:none;">+ Adicionar item</button>
+  <!-- BOTÃO ADMIN (SÓ COM LINK SECRETO) -->
+  <button id="btnAdmin" class="btn-admin" style="display:none;">
+    + Adicionar item
+  </button>
 
-<div id="painelAdmin">
-  <h3>Adicionar item</h3>
-  <input id="nomeItem" placeholder="Nome do item">
-  <input id="valorItem" type="number" placeholder="Valor (R$)">
-  <input id="fotoItem" type="file" accept="image/*">
-  <button class="btn-presentear" onclick="salvarItem()">Salvar</button>
-</div>
-
-<div id="lista"></div>
-
-<!-- MODAL PRESENTEAR -->
-<div id="modal">
-  <div id="modalContent">
-    <h3 id="modalNome"></h3>
-    <p id="modalValor"></p>
-
-    <p>PIX:</p>
-    <strong>SEU_PIX_AQUI</strong>
-
-    <textarea placeholder="Mensagem (opcional)"></textarea>
-
-    <button class="btn-presentear" onclick="fecharModal()">Fechar</button>
+  <!-- PAINEL ADMIN -->
+  <div id="painelAdmin">
+    <h3>Adicionar item</h3>
+    <input id="nomeItem" placeholder="Nome do item">
+    <input id="valorItem" type="number" placeholder="Valor (R$)">
+    <input id="fotoItem" type="file" accept="image/*">
+    <button class="btn-presentear" id="salvarItemBtn">Salvar</button>
   </div>
-</div>
 
-<script type="module">
-  // 🔥 Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { 
-    getStorage, ref, uploadBytes, getDownloadURL 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+  <!-- LISTA -->
+  <div id="lista"></div>
 
-  const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_DOMINIO",
-    projectId: "SEU_PROJECT_ID",
-    storageBucket: "SEU_STORAGE",
-    messagingSenderId: "SEU_SENDER",
-    appId: "SEU_APP_ID"
-  };
+  <!-- MODAL PRESENTEAR -->
+  <div id="modal">
+    <div id="modalContent">
+      <h3 id="modalNome"></h3>
+      <p id="modalValor"></p>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+      <p><strong>PIX:</strong></p>
+      <p>SEU_PIX_AQUI</p>
 
- const params = new URLSearchParams(window.location.search);
-const isAdmin = params.get("admin") === "1";
-  const lista = document.getElementById("lista");
-  const painel = document.getElementById("painelAdmin");
-  const btnAdmin = document.getElementById("btnAdmin");
+      <textarea placeholder="Mensagem (opcional)"></textarea>
 
-  if (isAdmin) {
-    btnAdmin.style.display = "inline-block";
-    btnAdmin.onclick = () => {
-      painel.style.display = painel.style.display === "none" ? "block" : "none";
+      <button class="btn-presentear" id="fecharModalBtn">
+        Fechar
+      </button>
+    </div>
+  </div>
+
+  <!-- SCRIPT (REVISADO) -->
+  <script>
+    /* ========= ADMIN ========= */
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get("admin") === "1";
+
+    const btnAdmin = document.getElementById("btnAdmin");
+    const painelAdmin = document.getElementById("painelAdmin");
+
+    if (isAdmin) {
+      btnAdmin.style.display = "inline-block";
+    }
+
+    btnAdmin.addEventListener("click", () => {
+      painelAdmin.style.display =
+        painelAdmin.style.display === "none" ? "block" : "none";
+    });
+
+    /* ========= DADOS ========= */
+    const lista = document.getElementById("lista");
+    let itens = JSON.parse(localStorage.getItem("itens")) || [];
+
+    /* ========= SALVAR ITEM ========= */
+    document.getElementById("salvarItemBtn").addEventListener("click", () => {
+      const nome = nomeItem.value.trim();
+      const valor = valorItem.value;
+      const foto = fotoItem.files[0];
+
+      if (!nome || !valor || !foto) {
+        alert("Preencha todos os campos");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        itens.push({
+          nome,
+          valor,
+          foto: reader.result
+        });
+        localStorage.setItem("itens", JSON.stringify(itens));
+        painelAdmin.style.display = "none";
+        nomeItem.value = "";
+        valorItem.value = "";
+        fotoItem.value = "";
+        renderizar();
+      };
+      reader.readAsDataURL(foto);
+    });
+
+    /* ========= RENDER ========= */
+    function renderizar() {
+      lista.innerHTML = "";
+      itens.forEach((item, index) => {
+        lista.innerHTML += `
+          <div class="item">
+            <img src="${item.foto}">
+            <p><strong>${item.nome}</strong></p>
+            <p class="valor">R$ ${item.valor}</p>
+            <button class="btn-presentear" onclick="abrirModal(${index})">
+              Presentear
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    /* ========= MODAL ========= */
+    const modal = document.getElementById("modal");
+
+    window.abrirModal = function (index) {
+      modal.style.display = "flex";
+      modalNome.innerText = itens[index].nome;
+      modalValor.innerText = "Valor: R$ " + itens[index].valor;
     };
-  }
 
-  // 🔹 SALVAR ITEM
-  window.salvarItem = async function () {
-    const nome = nomeItem.value;
-    const valor = valorItem.value;
-    const foto = fotoItem.files[0];
-
-    if (!nome || !valor || !foto) {
-      alert("Preencha tudo");
-      return;
-    }
-
-    const imgRef = ref(storage, "itens/" + Date.now());
-    await uploadBytes(imgRef, foto);
-    const url = await getDownloadURL(imgRef);
-
-    await addDoc(collection(db, "itens"), {
-      nome,
-      valor,
-      foto: url,
-      doado: false
+    document.getElementById("fecharModalBtn").addEventListener("click", () => {
+      modal.style.display = "none";
     });
 
-    painel.style.display = "none";
-    carregarItens();
-  };
-
-  // 🔹 CARREGAR ITENS
-  async function carregarItens() {
-    lista.innerHTML = "";
-    const querySnapshot = await getDocs(collection(db, "itens"));
-
-    querySnapshot.forEach(docSnap => {
-      const item = docSnap.data();
-      lista.innerHTML += `
-        <div class="item ${item.doado ? 'doado' : ''}">
-          <img src="${item.foto}">
-          <p><strong>${item.nome}</strong></p>
-          <p class="valor">R$ ${item.valor}</p>
-          ${
-            item.doado 
-            ? "<span>🎁 Já doado</span>"
-            : `<button class="btn-presentear" onclick="abrirModal('${docSnap.id}','${item.nome}','${item.valor}')">Presentear</button>`
-          }
-          ${
-            isAdmin 
-            ? `<button onclick="excluirItem('${docSnap.id}')">Excluir</button>` 
-            : ""
-          }
-        </div>
-      `;
-    });
-  }
-
-  // 🔹 EXCLUIR ITEM
-  window.excluirItem = async function (id) {
-    if (confirm("Excluir este item?")) {
-      await deleteDoc(doc(db, "itens", id));
-      carregarItens();
-    }
-  };
-
-  carregarItens();
-</script>
-
+    renderizar();
+  </script>
 
 </body>
 </html>
