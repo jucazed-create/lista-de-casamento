@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lista de Casamento | Ismael e Isadora</title>
+  <title>Lista de Casamento | Ismael & Isadora</title>
 
-  <!-- Firebase -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    /* ================= CONFIG FIREBASE ================= */
     const firebaseConfig = {
       apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
       authDomain: "lista-casamento-ismael-isadora.firebaseapp.com",
@@ -21,84 +22,195 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const produtosRef = collection(db, 'produtos');
 
-    const lista = document.getElementById('lista');
-    const form = document.getElementById('adminForm');
+    /* ================= ADMIN MODE ================= */
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get('admin') === '1';
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdmin = urlParams.get('admin') === '1';
-
-    if (isAdmin) document.getElementById('adminArea').style.display = 'block';
-
-    onSnapshot(collection(db, 'itens'), (snapshot) => {
-      lista.innerHTML = '';
-      snapshot.forEach((docSnap) => {
-        const item = docSnap.data();
-        const id = docSnap.id;
-
-        lista.innerHTML += `
-          <div class="card ${item.doado ? 'doado' : ''}">
-            <img src="${item.imagem}" />
-            <h3>${item.nome}</h3>
-            <p>R$ ${item.valor}</p>
-            ${item.doado ? '<span class="selo">DOADO</span>' : `<button onclick="presentear('${id}')">Presentear</button>`}
-            ${isAdmin ? `<button onclick="excluir('${id}')" class="excluir">Excluir</button>` : ''}
-          </div>
-        `;
-      });
-    });
-
-    form?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await addDoc(collection(db, 'itens'), {
-        nome: nome.value,
-        valor: valor.value,
-        imagem: imagem.value,
-        doado: false
-      });
-      form.reset();
-    });
-
-    window.presentear = async (id) => {
-      await updateDoc(doc(db, 'itens', id), { doado: true });
-      window.location.href = 'https://wa.me/5599999999999?text=Presenteei um item da lista 💕';
+    if (isAdmin) {
+      document.documentElement.classList.add('admin');
     }
 
-    window.excluir = async (id) => {
-      if (confirm('Excluir item?')) await deleteDoc(doc(db, 'itens', id));
+    /* ================= LISTAGEM ================= */
+    const grid = document.getElementById('grid');
+
+    onSnapshot(produtosRef, (snapshot) => {
+      grid.innerHTML = '';
+      snapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        const id = docSnap.id;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        if (p.doado) card.classList.add('doado');
+
+        card.innerHTML = `
+          <img src="${p.imagem}" alt="${p.nome}" />
+          <h3>${p.nome}</h3>
+          <p class="preco">R$ ${p.valor}</p>
+          ${p.doado ? '<span class="selo">Presenteado</span>' : '<button class="btn-presentear">Presentear</button>'}
+          ${isAdmin ? '<button class="btn-excluir">Excluir</button>' : ''}
+        `;
+
+        if (!p.doado) {
+          card.querySelector('.btn-presentear')?.addEventListener('click', () => presentear(id));
+        }
+
+        card.querySelector('.btn-excluir')?.addEventListener('click', () => excluir(id));
+
+        grid.appendChild(card);
+      });
+    });
+
+    /* ================= ADMIN: ADD ================= */
+    const form = document.getElementById('formAdmin');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await addDoc(produtosRef, {
+          nome: nome.value,
+          valor: valor.value,
+          imagem: imagem.value,
+          doado: false
+        });
+        form.reset();
+      });
+    }
+
+    /* ================= AÇÕES ================= */
+    async function presentear(id) {
+      await updateDoc(doc(db, 'produtos', id), { doado: true });
+      window.open('https://wa.me/55SEUNUMERO?text=Presenteei um item da lista de casamento 💕', '_blank');
+    }
+
+    async function excluir(id) {
+      if (confirm('Excluir este item?')) {
+        await deleteDoc(doc(db, 'produtos', id));
+      }
     }
   </script>
 
+  <!-- ================= STYLE ================= -->
   <style>
-    body { font-family: Arial; background:#fafafa; text-align:center; }
-    h1 { color:#c06; }
-    .frase { margin-bottom:20px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; padding:20px; }
-    .card { background:white; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
-    img { width:100%; height:180px; object-fit:cover; border-radius:10px; }
-    button { background:#c06; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; }
-    .excluir { background:#999; margin-top:10px; }
-    .doado { opacity:0.6; }
-    .selo { display:block; color:green; font-weight:bold; margin-top:10px; }
-    #adminArea { display:none; background:#fff; padding:20px; margin:20px; border-radius:12px; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #faf7f8;
+      color: #333;
+      text-align: center;
+    }
+
+    header {
+      padding: 40px 20px 20px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #b76e79;
+      font-size: 2.2rem;
+    }
+
+    .frase {
+      margin-top: 10px;
+      color: #666;
+      font-style: italic;
+    }
+
+    #adminPanel {
+      display: none;
+      background: #fff;
+      margin: 30px auto;
+      max-width: 400px;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    }
+
+    .admin #adminPanel {
+      display: block;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #b76e79;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover { opacity: .9; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+      position: relative;
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 2px solid #f0e6e8;
+    }
+
+    .preco { font-weight: bold; }
+
+    .btn-excluir {
+      margin-top: 8px;
+      background: #999;
+    }
+
+    .doado {
+      opacity: 0.6;
+    }
+
+    .selo {
+      display: inline-block;
+      margin-top: 10px;
+      color: #2e7d32;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-<h1>Ismael e Isadora</h1>
-<p class="frase">Com amor Deus nos uniu, com amor criamos nosso lar 💕</p>
+<header>
+  <h1>Ismael & Isadora</h1>
+  <p class="frase">Com amor Deus nos uniu, com amor criamos nosso lar 💕</p>
+</header>
 
-<div id="adminArea">
-  <h2>Adicionar Item</h2>
-  <form id="adminForm">
-    <input id="nome" placeholder="Nome do item" required /><br><br>
-    <input id="valor" placeholder="Valor" required /><br><br>
-    <input id="imagem" placeholder="URL da imagem" required /><br><br>
+<section id="adminPanel">
+  <h2>Adicionar presente</h2>
+  <form id="formAdmin">
+    <input id="nome" placeholder="Nome do item" required />
+    <input id="valor" placeholder="Valor (ex: 250)" required />
+    <input id="imagem" placeholder="URL da imagem" required />
     <button type="submit">Adicionar</button>
   </form>
-</div>
+</section>
 
-<div id="lista" class="grid"></div>
+<main class="grid" id="grid"></main>
 
 </body>
 </html>
