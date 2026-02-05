@@ -49,7 +49,10 @@
           <img src="${p.imagem}" alt="${p.nome}" />
           <h3>${p.nome}</h3>
           <p class="preco">R$ ${p.valor}</p>
-          ${p.doado ? '<span class="selo">Presenteado</span>' : '<button class="btn-presentear">Presentear</button>'}
+          ${p.doado ? '<span class="selo">Presenteado</span>' : '<button onclick="abrirConfirmacao('${doc.id}')">
+  Presentear
+</button>
+'}
           ${isAdmin ? '<button class="btn-excluir">Excluir</button>' : ''}
         `;
 
@@ -79,16 +82,44 @@
     }
 
     /* ================= AÇÕES ================= */
-    async function presentear(id) {
-      await updateDoc(doc(db, 'produtos', id), { doado: true });
-      window.open('https://wa.me/55SEUNUMERO?text=Presenteei um item da lista de casamento 💕', '_blank');
+    async function confirmarPresente() {
+  if (!itemSelecionado) return;
+
+  // Atualiza no Firebase
+  await db.collection("produtos")
+    .doc(itemSelecionado)
+    .update({ presenteado: true });
+
+  fecharConfirmacao();
+
+  // Mensagem WhatsApp
+  const item = listaItens.find(i => i.id === itemSelecionado);
+  const mensagem = `Olá! 🎁 Eu presenteei o item "${item.nome}" no valor de R$ ${item.valor}. 💕`;
+
+  const whatsapp = `https://wa.me/5585997427285?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(whatsapp, "_blank");
+}
+
     }
 
-    async function excluir(id) {
-      if (confirm('Excluir este item?')) {
-        await deleteDoc(doc(db, 'produtos', id));
-      }
-    }
+    let itemSelecionado = null;
+
+function abrirConfirmacao(id) {
+  itemSelecionado = id;
+
+  const item = listaItens.find(i => i.id === id);
+  document.getElementById("textoConfirmacao").innerText =
+    `Você deseja presentear "${item.nome}" no valor de R$ ${item.valor}?`;
+
+  document.getElementById("modalConfirmacao").style.display = "flex";
+}
+
+function fecharConfirmacao() {
+  document.getElementById("modalConfirmacao").style.display = "none";
+  itemSelecionado = null;
+}
+
   </script>
 
   <!-- ================= STYLE ================= -->
@@ -197,6 +228,51 @@
   height: auto;
   object-fit: contain;
       }
+
+      .modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-botoes {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-confirmar {
+  flex: 1;
+  background: #8b5e5e;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  flex: 1;
+  background: #eee;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
     }
   </style>
 </head>
