@@ -174,17 +174,27 @@ db.ref("itens").on("value", snap => {
 
 /* ➕ ADD ITEM */
 function adicionarItem() {
-  const nome = nome.value;
-  const valor = valor.value;
-  const imagem = imagem.value;
+  const nomeItem = document.getElementById("nome").value;
+  const valorItem = document.getElementById("valor").value;
+  const imagemItem = document.getElementById("imagem").value;
 
-  db.ref("itens").push({
-    nome,
-    valor,
-    imagem,
+  if (!nomeItem || !valorItem || !imagemItem) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  firebase.database().ref("itens").push({
+    nome: nomeItem,
+    valor: valorItem,
+    imagem: imagemItem,
     presenteado: false
   });
+
+  document.getElementById("nome").value = "";
+  document.getElementById("valor").value = "";
+  document.getElementById("imagem").value = "";
 }
+
 
 /* 🗑️ EXCLUIR */
 function excluirItem(id) {
