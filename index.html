@@ -1,299 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lista de Casamento | Ismael & Isadora</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lista de Casamento</title>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    /* ================= CONFIG FIREBASE ================= */
-    const firebaseConfig = {
-      apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
-      authDomain: "lista-casamento-ismael-isadora.firebaseapp.com",
-      projectId: "lista-casamento-ismael-isadora",
-      storageBucket: "lista-casamento-ismael-isadora.appspot.com",
-      messagingSenderId: "144463156414",
-      appId: "1:144463156414:web:4f0e03c3153f61d36dbaef"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const produtosRef = collection(db, 'produtos');
-
-    /* ================= ADMIN MODE ================= */
-    const params = new URLSearchParams(window.location.search);
-    const isAdmin = params.get('admin') === '1';
-
-    if (isAdmin) {
-      document.documentElement.classList.add('admin');
-    }
-
-    /* ================= LISTAGEM ================= */
-    const grid = document.getElementById('grid');
-
-    onSnapshot(produtosRef, (snapshot) => {
-      grid.innerHTML = '';
-      snapshot.forEach((docSnap) => {
-        const p = docSnap.data();
-        const id = docSnap.id;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        if (p.doado) card.classList.add('doado');
-
-        card.innerHTML = `
-          <img src="${p.imagem}" alt="${p.nome}" />
-          <h3>${p.nome}</h3>
-          <p class="preco">R$ ${p.valor}</p>
-          ${p.doado ? '<span class="selo">Presenteado</span>' : '<button onclick="abrirConfirmacao('${doc.id}')">
-  Presentear
-</button>
-'}
-          ${isAdmin ? '<button class="btn-excluir">Excluir</button>' : ''}
-        `;
-
-        if (!p.doado) {
-          card.querySelector('.btn-presentear')?.addEventListener('click', () => presentear(id));
-        }
-
-        card.querySelector('.btn-excluir')?.addEventListener('click', () => excluir(id));
-
-        grid.appendChild(card);
-      });
-    });
-
-    /* ================= ADMIN: ADD ================= */
-    const form = document.getElementById('formAdmin');
-    if (form) {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await addDoc(produtosRef, {
-          nome: nome.value,
-          valor: valor.value,
-          imagem: imagem.value,
-          doado: false
-        });
-        form.reset();
-      });
-    }
-
-    /* ================= AÇÕES ================= */
-    async function confirmarPresente() {
-  if (!itemSelecionado) return;
-
-  // Atualiza no Firebase
-  await db.collection("produtos")
-    .doc(itemSelecionado)
-    .update({ presenteado: true });
-
-  fecharConfirmacao();
-
-  // Mensagem WhatsApp
-  const item = listaItens.find(i => i.id === itemSelecionado);
-  const mensagem = `Olá! 🎁 Eu presenteei o item "${item.nome}" no valor de R$ ${item.valor}. 💕`;
-
-  const whatsapp = `https://wa.me/5585997427285?text=${encodeURIComponent(mensagem)}`;
-
-  window.open(whatsapp, "_blank");
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fafafa;
+  margin: 0;
 }
 
-    }
-
-    let itemSelecionado = null;
-
-function abrirConfirmacao(id) {
-  itemSelecionado = id;
-
-  const item = listaItens.find(i => i.id === id);
-  document.getElementById("textoConfirmacao").innerText =
-    `Você deseja presentear "${item.nome}" no valor de R$ ${item.valor}?`;
-
-  document.getElementById("modalConfirmacao").style.display = "flex";
-}
-
-function fecharConfirmacao() {
-  document.getElementById("modalConfirmacao").style.display = "none";
-  itemSelecionado = null;
-}
-
-  </script>
-
-  <!-- ================= STYLE ================= -->
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #faf7f8;
-      color: #333;
-      text-align: center;
-    }
-
-    header {
-      padding: 40px 20px 20px;
-    }
-
-    h1 {
-      margin: 0;
-      color: #b76e79;
-      font-size: 2.2rem;
-    }
-
-    .frase {
-      margin-top: 10px;
-      color: #666;
-      font-style: italic;
-    }
-
-    #adminPanel {
-      display: none;
-      background: #fff;
-      margin: 30px auto;
-      max-width: 400px;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.08);
-    }
-
-    .admin #adminPanel {
-      display: block;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 1rem;
-    }
-
-    button {
-      background: #b76e79;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover { opacity: .9; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      padding: 20px;
-      max-width: 1100px;
-      margin: auto;
-    }
-
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.08);
-      position: relative;
-    }
-
-   .produto img,
-   .card img {
-   height: 220px;
-   object-fit: contain;
-   background: #fff;
-   padding: 12px;
-   border-radius: 12px;
-   border: 1px solid #e6dada;
-}
-    .preco { font-weight: bold; }
-
-    .btn-excluir {
-      margin-top: 8px;
-      background: #999;
-    }
-
-    .doado {
-      opacity: 0.6;
-    }
-
-    .selo {
-      display: inline-block;
-      margin-top: 10px;
-      color: #2e7d32;
-      font-weight: bold;
-
-      img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-      }
-
-      .modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 24px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 400px;
+header {
+  background: #b76e79;
+  color: white;
+  padding: 20px;
   text-align: center;
 }
 
-.modal-botoes {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
 
-.btn-confirmar {
-  flex: 1;
-  background: #8b5e5e;
-  color: #fff;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  text-align: center;
+  padding-bottom: 15px;
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.card h3 {
+  margin: 10px 0 5px;
+}
+
+.card p {
+  margin: 5px 0;
+}
+
+button {
   border: none;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 6px;
   cursor: pointer;
+  margin: 5px;
 }
 
-.btn-cancelar {
-  flex: 1;
-  background: #eee;
-  border: none;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
+.btn-presentear {
+  background: #b76e79;
+  color: white;
 }
 
-    }
-  </style>
+.btn-excluir {
+  background: #ccc;
+}
+
+.presenteado {
+  color: green;
+  font-weight: bold;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+</style>
 </head>
+
 <body>
 
 <header>
-  <h1>Ismael & Isadora</h1>
-  <p class="frase">Com amor Deus nos uniu, com amor criamos nosso lar 💕</p>
+  <h1>💍 Nossa Lista de Casamento</h1>
 </header>
 
-<section id="adminPanel">
-  <h2>Adicionar presente</h2>
-  <form id="formAdmin">
-    <input id="nome" placeholder="Nome do item" required />
-    <input id="valor" placeholder="Valor (ex: 250)" required />
-    <input id="imagem" placeholder="URL da imagem" required />
-    <button type="submit">Adicionar</button>
-  </form>
-</section>
+<div class="container">
 
-<main class="grid" id="grid"></main>
+  <!-- ADMIN -->
+  <div id="adminArea" style="display:none;">
+    <h2>Adicionar Item</h2>
+    <input id="nome" placeholder="Nome do item"><br><br>
+    <input id="valor" placeholder="Valor"><br><br>
+    <input id="imagem" placeholder="URL da imagem"><br><br>
+    <button onclick="adicionarItem()">Adicionar</button>
+    <hr>
+  </div>
+
+  <div class="grid" id="lista"></div>
+
+</div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="modal" id="modalConfirmacao">
+  <div class="modal-content">
+    <h3>Confirmar presente 🎁</h3>
+    <p id="modalItem"></p>
+    <button class="btn-presentear" onclick="confirmarDoacao()">Confirmar</button>
+    <button onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+/* 🔥 FIREBASE CONFIG */
+firebase.initializeApp({
+  apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
+  authDomain: "SEU_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://lista-casamento-ismael-isadora-default-rtdb.firebaseio.com",
+  projectId: "lista-casamento-ismael-isadora",
+});
+
+const db = firebase.database();
+const lista = document.getElementById("lista");
+
+/* 🔐 ADMIN VIA URL */
+const isAdmin = window.location.search.includes("admin=1");
+if (isAdmin) document.getElementById("adminArea").style.display = "block";
+
+/* 📦 LISTAR ITENS */
+db.ref("itens").on("value", snap => {
+  lista.innerHTML = "";
+  snap.forEach(child => {
+    const item = child.val();
+    const id = child.key;
+
+    lista.innerHTML += `
+      <div class="card">
+        <img src="${item.imagem}">
+        <h3>${item.nome}</h3>
+        <p>R$ ${item.valor}</p>
+        ${item.presenteado 
+          ? '<p class="presenteado">Presenteado ❤️</p>'
+          : `<button class="btn-presentear" onclick="abrirConfirmacao('${id}', '${item.nome}')">Presentear</button>`
+        }
+        ${isAdmin ? `<button class="btn-excluir" onclick="excluirItem('${id}')">Excluir</button>` : ""}
+      </div>
+    `;
+  });
+});
+
+/* ➕ ADD ITEM */
+function adicionarItem() {
+  const nome = nome.value;
+  const valor = valor.value;
+  const imagem = imagem.value;
+
+  db.ref("itens").push({
+    nome,
+    valor,
+    imagem,
+    presenteado: false
+  });
+}
+
+/* 🗑️ EXCLUIR */
+function excluirItem(id) {
+  if (confirm("Excluir item?")) {
+    db.ref("itens/" + id).remove();
+  }
+}
+
+/* 🎁 FLUXO PRESENTEAR */
+let itemSelecionado = null;
+
+function abrirConfirmacao(id, nome) {
+  itemSelecionado = id;
+  document.getElementById("modalItem").innerText = nome;
+  document.getElementById("modalConfirmacao").style.display = "flex";
+}
+
+function fecharModal() {
+  document.getElementById("modalConfirmacao").style.display = "none";
+}
+
+function confirmarDoacao() {
+  db.ref("itens/" + itemSelecionado).update({
+    presenteado: true
+  });
+
+  fecharModal();
+
+  window.location.href = "https://wa.me/558597427285?text=Acabei de presentear um item da lista 💍";
+}
+</script>
 
 </body>
 </html>
