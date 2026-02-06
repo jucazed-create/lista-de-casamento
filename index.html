@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lista de Casamento</title>
 
 <!-- Firebase -->
@@ -11,34 +11,34 @@
 
 <style>
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
   background: #fafafa;
-  margin: 0;
 }
 
 header {
   background: #b76e79;
   color: white;
-  padding: 20px;
+  padding: 25px;
   text-align: center;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
   padding: 20px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
 }
 
 .card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.1);
   text-align: center;
   padding-bottom: 15px;
 }
@@ -49,12 +49,21 @@ header {
   object-fit: contain;
 }
 
+.card h3 {
+  margin: 10px 0 5px;
+}
+
+.card p {
+  margin: 5px 0;
+}
+
 button {
   border: none;
-  padding: 10px;
+  padding: 10px 14px;
   border-radius: 6px;
   cursor: pointer;
-  margin: 5px;
+  margin: 6px;
+  font-size: 14px;
 }
 
 .btn-presentear {
@@ -63,7 +72,7 @@ button {
 }
 
 .btn-excluir {
-  background: #ccc;
+  background: #ddd;
 }
 
 .presenteado {
@@ -76,15 +85,16 @@ button {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,.6);
   align-items: center;
   justify-content: center;
+  z-index: 999;
 }
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 25px;
+  border-radius: 14px;
   width: 90%;
   max-width: 400px;
   text-align: center;
@@ -96,6 +106,7 @@ button {
 
 <header>
   <h1>💍 Nossa Lista de Casamento</h1>
+  <p>Com amor Deus nos uniu, com amor criamos nosso lar 💕</p>
 </header>
 
 <div class="container">
@@ -115,31 +126,31 @@ button {
 </div>
 
 <!-- MODAL PIX -->
-<div class="modal" id="modal">
+<div class="modal" id="modalPix">
   <div class="modal-content">
     <h3>Confirmar presente 🎁</h3>
     <p id="modalItem"></p>
 
     <img id="pixQr" style="width:220px;margin:15px auto;display:block">
 
-<p>
-  Chave Pix:<br>
-  <strong id="pixChave"></strong>
-</p>
-
+    <p>
+      Chave Pix:<br>
+      <strong id="pixChave"></strong>
+    </p>
 
     <button class="btn-presentear" onclick="confirmarDoacao()">Já fiz o Pix ✅</button>
+    <br>
     <button onclick="fecharModal()">Cancelar</button>
   </div>
 </div>
 
 <script>
-/* 🔥 FIREBASE */
+/* CONFIG */
 const PIX_CHAVE = "8597427285";
-const PIX_QR = "qrcode-pix.jpg"; // imagem local ou URL
+const PIX_QR = "qrcode-pix.jpg"; // coloque essa imagem no mesmo diretório
 
 firebase.initializeApp({
-  apiKey: "SUA_API_KEY",
+  apiKey: "AIzaSyBAsRYLwsbpnIWHzIn9MgRJ_KEbfozMzBM",
   authDomain: "lista-casamento-ismael-isadora.firebaseapp.com",
   databaseURL: "https://lista-casamento-ismael-isadora-default-rtdb.firebaseio.com",
   projectId: "lista-casamento-ismael-isadora"
@@ -152,7 +163,7 @@ const lista = document.getElementById("lista");
 const isAdmin = window.location.search.includes("admin=1");
 if (isAdmin) document.getElementById("adminArea").style.display = "block";
 
-/* LISTAR */
+/* LISTAR ITENS */
 db.ref("itens").on("value", snap => {
   lista.innerHTML = "";
 
@@ -169,16 +180,14 @@ db.ref("itens").on("value", snap => {
         ${
           item.presenteado
             ? `<p class="presenteado">Presenteado ❤️</p>`
-            : `<button class="btn-presentear"
-                onclick="abrirModal('${id}','${item.nome}')">
+            : `<button class="btn-presentear" onclick="abrirModal('${id}', '${item.nome}')">
                 Presentear
               </button>`
         }
 
         ${
           isAdmin
-            ? `<button class="btn-excluir"
-                onclick="excluirItem('${id}')">Excluir</button>`
+            ? `<button class="btn-excluir" onclick="excluirItem('${id}')">Excluir</button>`
             : ""
         }
       </div>
@@ -192,12 +201,21 @@ function adicionarItem() {
   const valor = document.getElementById("valor").value;
   const imagem = document.getElementById("imagem").value;
 
+  if (!nome || !valor || !imagem) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
   db.ref("itens").push({
     nome,
     valor,
     imagem,
     presenteado: false
   });
+
+  document.getElementById("nome").value = "";
+  document.getElementById("valor").value = "";
+  document.getElementById("imagem").value = "";
 }
 
 /* EXCLUIR */
@@ -215,17 +233,20 @@ function abrirModal(id, nome) {
 
   document.getElementById("modalItem").innerText = nome;
   document.getElementById("pixQr").src = PIX_QR;
-  document.getElementById("pixchave").innerText = PIX_CHAVE;
+  document.getElementById("pixChave").innerText = PIX_CHAVE;
 
-  document.getElementById("modal").style.display = "flex";
+  document.getElementById("modalPix").style.display = "flex";
 }
 
 function fecharModal() {
-  document.getElementById("modal").style.display = "none";
+  document.getElementById("modalPix").style.display = "none";
+  itemSelecionado = null;
 }
 
 /* CONFIRMAR */
 function confirmarDoacao() {
+  if (!itemSelecionado) return;
+
   db.ref("itens/" + itemSelecionado).update({
     presenteado: true
   });
