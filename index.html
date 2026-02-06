@@ -128,7 +128,7 @@ button {
 <div class="modal-content">
   <h3>Confirmar presente 🎁</h3>
 
-  <p id="modalItem" style="font-weight:bold;"></p>
+  <div id="modal" style="display: none;">
 
   <img 
     src="pix-qrcode.png" 
@@ -234,14 +234,16 @@ function excluirItem(id) {
 /* 🎁 FLUXO PRESENTEAR */
 let itemSelecionado = null;
 
-function abrirConfirmacao(id, nome) {
-  itemSelecionado = id;
-  document.getElementById("modalItem").innerText = nome;
-  document.getElementById("modalConfirmacao").style.display = "flex";
+function abrirModal(itemId, nomeItem) {
+  itemSelecionado = itemId;
+
+  document.getElementById("modalItem").innerText = nomeItem;
+  document.getElementById("modal").style.display = "flex";
 }
 
 function fecharModal() {
-  document.getElementById("modalConfirmacao").style.display = "none";
+  document.getElementById("modal").style.display = "none";
+  itemSelecionado = null;
 }
 
 function confirmarDoacao() {
