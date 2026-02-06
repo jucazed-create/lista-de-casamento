@@ -125,27 +125,28 @@ button {
 </div>
 
 <!-- MODAL CONFIRMAÇÃO -->
-<div class="modal-content">
-  <h3>Confirmar presente 🎁</h3>
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Confirmar presente 🎁</h3>
 
-  <div id="modal" style="display: none;">
+    <p id="modalItem"></p>
 
-  <img 
-    src="pix-qrcode.png" 
-    alt="QR Code Pix"
-    style="width:220px; margin:15px auto; display:block;"
-  >
+    <img src="pix-qrcode.png" style="width:220px;">
 
-  <p style="font-size:14px;">
-    Chave Pix:<br>
-    <strong>seu-pix-aqui</strong>
-  </p>
+    <p>
+      Chave Pix:<br>
+      <strong>seu-pix-aqui</strong>
+    </p>
 
-  <button class="btn-presentear" onclick="confirmarDoacao()">
-    Já fiz o Pix ✅
-  </button>
+    <button class="btn-presentear" onclick="confirmarDoacao()">
+      Já fiz o Pix ✅
+    </button>
 
-  <button onclick="fecharModal()">Cancelar</button>
+    <button onclick="fecharModal()">Cancelar</button>
+
+    <p id="modalItem" style="font-weight:bold;"></p>
+
+  </div>
 </div>
 
 <script>
