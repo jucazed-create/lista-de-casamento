@@ -183,12 +183,13 @@ function adicionarItem() {
     return;
   }
 
-  firebase.database().ref("itens").push({
-    nome: nomeItem,
-    valor: valorItem,
-    imagem: imagemItem,
-    presenteado: false
-  });
+  db.ref("itens").push({
+  nome: nomeItem,
+  valor: valorItem,
+  imagem: imagemItem,
+  presenteado: false
+});
+
 
   document.getElementById("nome").value = "";
   document.getElementById("valor").value = "";
