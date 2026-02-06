@@ -153,6 +153,7 @@ if (isAdmin) document.getElementById("adminArea").style.display = "block";
 /* 📦 LISTAR ITENS */
 db.ref("itens").on("value", snap => {
   lista.innerHTML = "";
+
   snap.forEach(child => {
     const item = child.val();
     const id = child.key;
@@ -162,11 +163,23 @@ db.ref("itens").on("value", snap => {
         <img src="${item.imagem}">
         <h3>${item.nome}</h3>
         <p>R$ ${item.valor}</p>
-        ${item.presenteado 
-          ? '<p class="presenteado">Presenteado ❤️</p>'
-          : `<button class="btn-presentear" onclick="abrirConfirmacao('${id}', '${item.nome}')">Presentear</button>`
+
+        ${
+          item.presenteado
+          ? `<p class="presenteado">Presenteado ❤️</p>`
+          : `<button class="btn-presentear"
+               onclick="abrirConfirmacao('${id}', '${item.nome}')">
+               Presentear
+             </button>`
         }
-        ${isAdmin ? `<button class="btn-excluir" onclick="excluirItem('${id}')">Excluir</button>` : ""}
+
+        ${
+          isAdmin
+          ? `<button class="btn-excluir" onclick="excluirItem('${id}')">
+               Excluir
+             </button>`
+          : ""
+        }
       </div>
     `;
   });
