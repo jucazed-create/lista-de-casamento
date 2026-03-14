@@ -12,15 +12,16 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #fafafa;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#eaf6ff,#ffffff,#f5fbff);
 }
 
 header {
-  background: #89CFF0;
+  background: linear-gradient(135deg,#89CFF0,#6bbbe8);
   color: white;
-  padding: 25px;
+  padding: 35px 20px;
   text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,.1);
 }
 
 .container {
@@ -37,10 +38,16 @@ header {
 
 .card {
   background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.1);
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
   text-align: center;
   padding-bottom: 15px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+  .card:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
 }
 
 .card img {
@@ -67,8 +74,14 @@ button {
 }
 
 .btn-presentear {
-  background: #89CFF0;
+  background: linear-gradient(135deg,#89CFF0,#6bbbe8);
   color: white;
+  font-weight: bold;
+  transition: .2s;
+}
+
+  .btn-presentear:hover{
+  transform: scale(1.05);
 }
 
 .btn-excluir {
