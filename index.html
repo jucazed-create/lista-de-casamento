@@ -67,7 +67,7 @@ button {
 }
 
 .btn-presentear {
-  background: #b76e79;
+  background: #89CFF0;
   color: white;
 }
 
@@ -129,8 +129,10 @@ button {
 <div class="modal" id="modalPix">
   <div class="modal-content">
     <h3>Confirmar presente 🎁</h3>
+    
     <p id="modalItem"></p>
-
+    <p id="modalValor" style="font-weight:bold;"></p>
+    
     <img id="pixQr" style="width:220px;margin:15px auto;display:block">
 
     <p>
@@ -180,7 +182,7 @@ db.ref("itens").on("value", snap => {
         ${
           item.presenteado
             ? `<p class="presenteado">Presenteado ❤️</p>`
-            : `<button class="btn-presentear" onclick="abrirModal('${id}', '${item.nome}')">
+            : `<button class="btn-presentear" onclick="abrirModal('${id}','${item.nome}','${item.valor}')">
                 Presentear
               </button>`
         }
@@ -228,16 +230,19 @@ function excluirItem(id) {
 /* MODAL */
 let itemSelecionado = null;
 
-function abrirModal(id, nome) {
+function abrirModal(id, nome, valor) {
+
   itemSelecionado = id;
 
   document.getElementById("modalItem").innerText = nome;
+  document.getElementById("modalValor").innerText = "Valor: R$ " + valor;
+
   document.getElementById("pixQr").src = PIX_QR;
   document.getElementById("pixChave").innerText = PIX_CHAVE;
 
-  document.getElementById("modalPix").style.display = "flex";
+  document.getElementById("modal").style.display = "flex";
 }
-
+  
 function fecharModal() {
   document.getElementById("modalPix").style.display = "none";
   itemSelecionado = null;
